@@ -19,18 +19,19 @@ public class MoneyTracker
         try
         {
             string jsonString = File.ReadAllText("items.json");
-            Items = JsonSerializer.Deserialize<List<Item>>(jsonString);
+            Items = JsonSerializer.Deserialize<List<Item>>(jsonString) ?? new List<Item>();
+            CalculateInitialBalance();
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error loading items: {ex.Message}");
+            Items = new List<Item>(); // Initialize to an empty list in case of an error
         }
     }
 
     public MoneyTracker()
     {
         LoadItems();
-        CalculateInitialBalance();
     }
 
     public void SaveItems()

@@ -6,7 +6,7 @@ using System.Linq;
 
 public static class Program
 {
-    private static MoneyTracker _moneyTracker;
+    private static MoneyTracker _moneyTracker = new MoneyTracker();
 
     public static void Main(string[] args)
     {
@@ -96,7 +96,14 @@ public static class Program
     private static void AddNewItem(MoneyTracker moneyTracker)
     {
         Console.Write("Enter title: ");
-        string title = Console.ReadLine();
+        string? title = Console.ReadLine();
+
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            Console.WriteLine("Title cannot be empty.");
+            return;
+        }
+
         Console.Write("Enter amount: ");
         float amount = Convert.ToSingle(Console.ReadLine());
 
@@ -117,9 +124,9 @@ public static class Program
         Console.Write("Enter ID of item to edit or delete: ");
         int itemId = Convert.ToInt32(Console.ReadLine());
 
-        Item existingItem = moneyTracker.Items.FirstOrDefault(i => i.ItemId == itemId);
+        Item? existingItem = moneyTracker.Items.FirstOrDefault(i => i.ItemId == itemId); // Make existingItem nullable
 
-        if (existingItem != null)
+        if (existingItem != null) // Check if existingItem is not null
         {
             var editOrDeletePrompt = new SelectionPrompt<string>()
                 .Title("[bold yellow]\nWould you like to edit or delete this item?[/]")
@@ -138,13 +145,14 @@ public static class Program
                 Console.WriteLine($"Current Amount: {existingItem.Amount}");
                 Console.Write("Enter new amount (leave blank to keep current): ");
 
-                string newAmountInput = Console.ReadLine();
-
                 float newAmount = existingItem.Amount;
+                string? newAmountInput = Console.ReadLine();
+
                 if (!string.IsNullOrWhiteSpace(newAmountInput))
                 {
                     newAmount = Convert.ToSingle(newAmountInput);
                 }
+
 
                 ItemType newItemType = (newAmount > 0) ? ItemType.Income : ItemType.Expense;
                 DateTime newDate = existingItem.Date;
@@ -185,7 +193,7 @@ public static class Program
         }
         else
         {
-            Console.WriteLine("Item not found.");
+            Console.WriteLine("Item not found."); // Handle case when existingItem is null
         }
     }
 }
