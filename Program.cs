@@ -77,7 +77,7 @@ public class MoneyTracker
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error saving items: {ex.Message}");
+            Console.WriteLine($"Error saving item: {ex.Message}");
         }
     }
 
