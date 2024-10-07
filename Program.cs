@@ -2,131 +2,7 @@
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text.Json;
-using System.Threading.Tasks;
-
-public enum ItemType
-{
-    Income,
-    Expense
-}
-
-public enum SortDirection
-{
-    Ascending,
-    Descending
-}
-
-public class Item
-{
-    public int ItemId { get; set; }
-    public string Title { get; set; }
-    public float Amount { get; set; }
-    public DateTime Date { get; set; }
-    public ItemType ItemType { get; set; }
-
-    public Item(int itemId, string title, float amount, DateTime date, ItemType itemType)
-    {
-        ItemId = itemId;
-        Title = title;
-        Amount = amount;
-        Date = date;
-        ItemType = itemType;
-    }
-
-    //public bool IsValid()
-    //{
-    //}
-}
-
-public class MoneyTracker
-{
-    public float Balance { get; set; }
-    public List<Item> Items { get; set; } = new List<Item>();
-
-    private void CalculateInitialBalance()
-    {
-        Balance = Items.Sum(item => item.ItemType == ItemType.Income ? item.Amount : -item.Amount);
-    }
-    public void LoadItems()
-    {
-        try
-        {
-            string jsonString = File.ReadAllText("items.json");
-            Items = JsonSerializer.Deserialize<List<Item>>(jsonString);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error loading items: {ex.Message}");
-        }
-    }
-
-    public MoneyTracker()
-    {
-        LoadItems();
-        CalculateInitialBalance();
-    }
-
-    public void SaveItems()
-    {
-        try
-        {
-            string jsonString = JsonSerializer.Serialize(Items);
-            File.WriteAllText("items.json", jsonString);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error saving item: {ex.Message}");
-        }
-    }
-
-    public void AddItem(Item item)
-    {
-        item.ItemId = Items.Count + 1;
-        Items.Add(item);
-
-        if (item.Amount > 0)
-        {
-            Balance += item.Amount;
-        }
-        else
-        {
-            Balance -= Math.Abs(item.Amount);
-        }
-
-        SaveItems();
-    }
-
-    public void EditItem(int itemId, Item newItem)
-    {
-        var existingItem = Items.FirstOrDefault(i => i.ItemId == itemId);
-        if (existingItem != null /*&& newItem.IsValid()*/)
-        {
-            Balance -= existingItem.Amount;
-            existingItem.Title = newItem.Title;
-            existingItem.Amount = newItem.Amount;
-            existingItem.Date = newItem.Date;
-            existingItem.ItemType = newItem.ItemType;
-
-            if (existingItem.ItemType != newItem.ItemType)
-            {
-                Balance += (newItem.ItemType == ItemType.Income ? newItem.Amount : -newItem.Amount);
-            }
-            else
-            {
-                Balance += (newItem.ItemType == ItemType.Income ? newItem.Amount : -newItem.Amount);
-            }
-
-            SaveItems();
-        }
-        else
-        {
-            Console.WriteLine("Item not found or invalid new item.");
-        }
-    }
-
-}
+using System.Linq;
 
 public static class Program
 {
@@ -153,9 +29,10 @@ public static class Program
                 itemsTable.AddRow(
                     item.ItemId.ToString(),
                     item.Title,
-                    $"[green]{(item.ItemType == ItemType.Expense ? "-" : "")}{item.Amount:C2}[/]",
+                    $"[{(item.ItemType == ItemType.Expense ? "red" : "green")}]"
+                    + $"{(item.ItemType == ItemType.Expense ? "-" : "")}{item.Amount:C2}[/]",
                     item.Date.ToString("MMMM dd, yyyy"),
-                    $"[{Color.Blue}] {item.ItemType} [/]"
+                    $"[{(item.ItemType == ItemType.Expense ? "red" : "green")}] {item.ItemType} [/]"
                 );
             }
 
@@ -197,7 +74,7 @@ public static class Program
             var selectionPrompt = new SelectionPrompt<string>()
                 .PageSize(4)
                 .AddChoices(options)
-                .Title("[bold yellow]Select an option:[/]");
+                .Title("[bold yellow]\nSelect an option:[/]");
 
             var selection = AnsiConsole.Prompt(selectionPrompt);
 
@@ -245,7 +122,7 @@ public static class Program
         if (existingItem != null)
         {
             var editOrDeletePrompt = new SelectionPrompt<string>()
-                .Title("[bold yellow]Would you like to edit or delete this item?[/]")
+                .Title("[bold yellow]\nWould you like to edit or delete this item?[/]")
                 .AddChoices(new[] { "Edit", "Delete" });
 
             string action = AnsiConsole.Prompt(editOrDeletePrompt);
@@ -255,7 +132,7 @@ public static class Program
                 Console.WriteLine($"Current Title: {existingItem.Title}");
                 Console.Write("Enter new title (leave blank to keep current): ");
 
-                string newTitle = Console.ReadLine();
+                string? newTitle = Console.ReadLine();
                 newTitle = string.IsNullOrWhiteSpace(newTitle) ? existingItem.Title : newTitle;
 
                 Console.WriteLine($"Current Amount: {existingItem.Amount}");
@@ -280,7 +157,7 @@ public static class Program
             else if (action == "Delete")
             {
                 var confirmDeletePrompt = new SelectionPrompt<string>()
-                    .Title($"[red]Are you sure you want to delete the item '{existingItem.Title}'?[/]")
+                    .Title($"[red]Are you sure you want to delete the item '[blue]{existingItem.Title}[/]'?[/]")
                     .AddChoices(new[] { "Yes", "No" });
 
                 string confirmAction = AnsiConsole.Prompt(confirmDeletePrompt);
@@ -298,7 +175,7 @@ public static class Program
                     moneyTracker.Items.Remove(existingItem);
                     moneyTracker.SaveItems();
 
-                    AnsiConsole.MarkupLine($"Deleted item: {existingItem.Title}");
+                    AnsiConsole.MarkupLine($"Deleted item: [blue]{existingItem.Title}[/]");
                 }
                 else
                 {

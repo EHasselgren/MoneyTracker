@@ -8,11 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="resources\images\calculator.png" />
+    <None Remove="Resources\Images\calculator.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="resources\images\calculator.png" />
+    <EmbeddedResource Include="Resources\Images\calculator.png" />
   </ItemGroup>
 
   <ItemGroup>
