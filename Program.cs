@@ -35,22 +35,15 @@ public class Item
         ItemType = itemType;
     }
 
-    public bool IsValid()
-    {
-        return Amount > 0;
-    }
+    //public bool IsValid()
+    //{
+    //}
 }
 
 public class MoneyTracker
 {
     public float Balance { get; set; }
     public List<Item> Items { get; set; } = new List<Item>();
-
-    public MoneyTracker()
-    {
-        LoadItems();
-        CalculateInitialBalance();
-    }
 
     private void CalculateInitialBalance()
     {
@@ -67,6 +60,12 @@ public class MoneyTracker
         {
             Console.WriteLine($"Error loading items: {ex.Message}");
         }
+    }
+
+    public MoneyTracker()
+    {
+        LoadItems();
+        CalculateInitialBalance();
     }
 
     public void SaveItems()
@@ -102,7 +101,7 @@ public class MoneyTracker
     public void EditItem(int itemId, Item newItem)
     {
         var existingItem = Items.FirstOrDefault(i => i.ItemId == itemId);
-        if (existingItem != null && newItem.IsValid())
+        if (existingItem != null /*&& newItem.IsValid()*/)
         {
             Balance -= existingItem.Amount;
             existingItem.Title = newItem.Title;
@@ -263,6 +262,7 @@ public static class Program
                 Console.Write("Enter new amount (leave blank to keep current): ");
 
                 string newAmountInput = Console.ReadLine();
+
                 float newAmount = existingItem.Amount;
                 if (!string.IsNullOrWhiteSpace(newAmountInput))
                 {
