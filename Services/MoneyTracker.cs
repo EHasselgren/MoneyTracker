@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Spectre.Console;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,12 +7,12 @@ using System.Text.Json;
 
 public class MoneyTracker
 {
-    public float Balance { get; set; }
+    public decimal Balance { get; set; }
     public List<Item> Items { get; set; } = new List<Item>();
 
-    private void CalculateInitialBalance()
+    public MoneyTracker()
     {
-        Balance = Items.Sum(item => item.ItemType == ItemType.Income ? item.Amount : -item.Amount);
+        LoadItems();
     }
 
     public void LoadItems()
@@ -24,14 +25,9 @@ public class MoneyTracker
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error loading items: {ex.Message}");
-            Items = new List<Item>(); // Initialize to an empty list in case of an error
+            AnsiConsole.WriteLine($"Error loading items: {ex.Message}");
+            Items = new List<Item>();
         }
-    }
-
-    public MoneyTracker()
-    {
-        LoadItems();
     }
 
     public void SaveItems()
@@ -43,17 +39,30 @@ public class MoneyTracker
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error saving item: {ex.Message}");
+            AnsiConsole.WriteLine($"Error saving item: {ex.Message}");
         }
+    }
+
+    private void CalculateInitialBalance()
+    {
+        Balance = Items.Sum(item => item.ItemType == ItemType.Income ? item.Amount : -item.Amount);
+    }
+
+    public List<Item> GetSortedItems(Func<Item, object> sortBy, bool ascending = true)
+    {
+        return ascending ? Items.OrderBy(sortBy).ToList() : Items.OrderByDescending(sortBy).ToList();
+    }
+
+    public List<Item> GetFilteredItems(ItemType itemType)
+    {
+        return Items.Where(i => i.ItemType == itemType).ToList();
     }
 
     public void AddItem(Item item)
     {
         item.ItemId = Items.Count + 1;
         Items.Add(item);
-
         Balance += item.ItemType == ItemType.Income ? item.Amount : -Math.Abs(item.Amount);
-
         SaveItems();
     }
 
@@ -74,7 +83,7 @@ public class MoneyTracker
         }
         else
         {
-            Console.WriteLine("Item not found or invalid new item.");
+            AnsiConsole.WriteLine("Item not found or invalid new item.");
         }
     }
 }

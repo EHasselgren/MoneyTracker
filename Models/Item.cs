@@ -2,11 +2,13 @@
 {
     public int ItemId { get; set; }
     public string Title { get; set; }
-    public float Amount { get; set; }
+    public decimal Amount { get; set; }
     public DateTime Date { get; set; }
     public ItemType ItemType { get; set; }
 
-    public Item(int itemId, string title, float amount, DateTime date, ItemType itemType)
+    public int Month => Date.Month;
+
+    public Item(int itemId, string title, decimal amount, DateTime date, ItemType itemType)
     {
         ItemId = itemId;
         Title = title;
@@ -14,8 +16,5 @@
         Date = date;
         ItemType = itemType;
     }
-
-    //public bool IsValid()
-    //{
-    //}
 }
+

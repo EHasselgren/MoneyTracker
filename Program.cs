@@ -10,69 +10,26 @@ public static class Program
 
     public static void Main(string[] args)
     {
-        _moneyTracker = new MoneyTracker();
         _moneyTracker.LoadItems();
 
         while (true)
         {
-            Console.Clear();
+            AnsiConsole.Clear();
 
-            var itemsTable = new Table()
-                .AddColumn("[white]ID[/]")
-                .AddColumn("[white]Title[/]")
-                .AddColumn("[white]Amount[/]")
-                .AddColumn("[white]Month[/]")
-                .AddColumn("[white]Type[/]");
-
-            foreach (var item in _moneyTracker.Items)
-            {
-                itemsTable.AddRow(
-                    item.ItemId.ToString(),
-                    item.Title,
-                    $"[{(item.ItemType == ItemType.Expense ? "red" : "green")}]"
-                    + $"{(item.ItemType == ItemType.Expense ? "-" : "")}{item.Amount:C2}[/]",
-                    item.Date.ToString("MMMM dd, yyyy"),
-                    $"[{(item.ItemType == ItemType.Expense ? "red" : "green")}] {item.ItemType} [/]"
-                );
-            }
-
-            var itemsPanel = new Panel(itemsTable)
-            {
-                Border = BoxBorder.Square,
-                Header = new PanelHeader("Items")
-            };
-
-            var balanceTable = new Table()
-                .AddColumn("[white]Total Balance[/]");
-
-            balanceTable.AddRow($"[yellow]{_moneyTracker.Balance:C2}[/]");
-
-            var balancePanel = new Panel(balanceTable)
-            {
-                Border = BoxBorder.Square,
-                Header = new PanelHeader("Balance")
-            };
-
-            var columnsLayout = new Columns(itemsPanel, balancePanel);
-
-            var mainPanel = new Panel(new Rows(columnsLayout))
-            {
-                Border = BoxBorder.Rounded,
-                Padding = new Padding(2, 1),
-                Header = new PanelHeader("[bold yellow]Money Tracker[/]")
-            };
-
-            AnsiConsole.Write(mainPanel);
+            DisplayItemsAndBalance();
 
             var options = new List<string>
-            {
-                "Add New Expense/Income",
-                "Edit Item (edit, remove)",
-                "Save and Quit"
-            };
+        {
+            "Show Income Items",
+            "Show Expense Items",
+            "Sort Items",
+            "Add New Item",
+            "Edit or Delete Item",
+            "Save and Quit"
+        };
 
             var selectionPrompt = new SelectionPrompt<string>()
-                .PageSize(4)
+                .PageSize(6)
                 .AddChoices(options)
                 .Title("[bold yellow]\nSelect an option:[/]");
 
@@ -80,31 +37,150 @@ public static class Program
 
             switch (selection)
             {
-                case "Add New Expense/Income":
+                case "Show Income Items":
+                    AnsiConsole.Clear();
+                    DisplayItemsAndBalance(ItemType.Income);
+                    break;
+
+                case "Show Expense Items":
+                    AnsiConsole.Clear();
+                    DisplayItemsAndBalance(ItemType.Expense);
+                    break;
+
+                case "Sort Items":
+                    SortItems();
+                    break;
+
+                case "Add New Item":
                     AddNewItem(_moneyTracker);
                     break;
-                case "Edit Item (edit, remove)":
+
+                case "Edit or Delete Item":
                     EditItem(_moneyTracker);
                     break;
+
                 case "Save and Quit":
                     _moneyTracker.SaveItems();
                     return;
             }
+
+            AnsiConsole.WriteLine("Press any key to continue...");
+            AnsiConsole.Console.Input.ReadKey(false);
         }
+    }
+
+    private static void DisplayItemsAndBalance(ItemType? filterType = null)
+    {
+        var itemsTable = new Table()
+            .AddColumn("[white]ID[/]")
+            .AddColumn("[white]Title[/]")
+            .AddColumn("[white]Amount[/]")
+            .AddColumn("[white]Month[/]")
+            .AddColumn("[white]Type[/]");
+
+        IEnumerable<Item> itemsToDisplay = filterType.HasValue
+            ? _moneyTracker.Items.Where(i => i.ItemType == filterType.Value)
+            : _moneyTracker.Items;
+
+        foreach (var item in itemsToDisplay)
+        {
+            itemsTable.AddRow(
+                item.ItemId.ToString(),
+                item.Title,
+                $"[{(item.ItemType == ItemType.Expense ? "red" : "green")}]"
+                + $"{(item.ItemType == ItemType.Expense ? "-" : "")}{item.Amount:C2}[/]",
+                item.Date.ToString("MMMM dd, yyyy"),
+                $"[{(item.ItemType == ItemType.Expense ? "red" : "green")}] {item.ItemType} [/]"
+            );
+        }
+
+        var balanceTable = new Table()
+            .AddColumn("[white]Total Balance[/]");
+
+        balanceTable.AddRow($"[yellow]{_moneyTracker.Balance:C2}[/]");
+
+        if (filterType == ItemType.Income)
+        {
+            var totalIncome = _moneyTracker.GetFilteredItems(ItemType.Income).Sum(item => item.Amount);
+            balanceTable = new Table()
+                .AddColumn("[white]Total Income[/]")
+                .AddRow($"[green]{totalIncome:C2}[/]");
+        }
+        else if (filterType == ItemType.Expense)
+        {
+            var totalExpenses = _moneyTracker.GetFilteredItems(ItemType.Expense).Sum(item => item.Amount);
+            balanceTable = new Table()
+                .AddColumn("[white]Total Expenses[/]")
+                .AddRow($"[red]{-totalExpenses:C2}[/]");
+        }
+
+        var columnsLayout = new Columns(
+            new Panel(itemsTable) { Border = BoxBorder.Square, Header = new PanelHeader("Items") },
+            new Panel(balanceTable) { Border = BoxBorder.Square, Header = new PanelHeader(filterType == ItemType.Income ? "Total Income" : (filterType == ItemType.Expense ? "Total Expenses" : "Total Balance")) }
+        );
+
+        var mainPanel = new Panel(new Rows(columnsLayout))
+        {
+            Border = BoxBorder.Rounded,
+            Padding = new Padding(2, 1),
+            Header = new PanelHeader("[bold yellow]Money Tracker[/]")
+        };
+
+        AnsiConsole.Write(mainPanel);
+    }
+
+    private static void SortItems()
+    {
+        var sortOptions = new List<string>
+    {
+        "Sort by ID",
+        "Sort by Title",
+        "Sort by Amount",
+        "Sort by Month",
+        "Go Back"
+    };
+
+        var sortPrompt = new SelectionPrompt<string>()
+            .PageSize(5)
+            .AddChoices(sortOptions)
+            .Title($"[bold yellow]\nSelect a sorting option:[/]");
+
+        var sortSelection = AnsiConsole.Prompt(sortPrompt);
+
+        switch (sortSelection)
+        {
+            case "Sort by ID":
+                _moneyTracker.Items = _moneyTracker.Items.OrderBy(i => i.ItemId).ToList();
+                break;
+            case "Sort by Title":
+                _moneyTracker.Items = _moneyTracker.Items.OrderBy(i => i.Title).ToList();
+                break;
+            case "Sort by Amount":
+                _moneyTracker.Items = _moneyTracker.Items.OrderBy(i => i.Amount).ToList();
+                break;
+            case "Sort by Month":
+                _moneyTracker.Items = _moneyTracker.Items.OrderBy(i => i.Date).ToList();
+                break;
+            case "Go Back":
+                return;
+        }
+
+        AnsiConsole.Clear();
+        DisplayItemsAndBalance();
     }
 
     private static void AddNewItem(MoneyTracker moneyTracker)
     {
-        Console.Write("Enter title: ");
+        AnsiConsole.Write($"[yellow]\nEnter title:[/] ");
         string? title = Console.ReadLine();
 
         if (string.IsNullOrWhiteSpace(title))
         {
-            Console.WriteLine("Title cannot be empty.");
+            AnsiConsole.WriteLine("Title cannot be empty.");
             return;
         }
 
-        Console.Write("Enter amount: ");
+        AnsiConsole.Write($"[bold yellow]\nEnter amount:[/] ");
         float amount = Convert.ToSingle(Console.ReadLine());
 
         ItemType itemType = (amount > 0) ? ItemType.Income : ItemType.Expense;
@@ -113,7 +189,7 @@ public static class Program
 
         int itemId = (moneyTracker.Items.Count > 0) ? moneyTracker.Items.Max(i => i.ItemId) + 1 : 1;
 
-        Item newItem = new Item(itemId, title, Math.Abs(amount), currentDate, itemType);
+        Item newItem = new Item(itemId, title, Math.Abs((decimal)amount), currentDate, itemType);
         moneyTracker.AddItem(newItem);
 
         AnsiConsole.MarkupLine($"Added new item: {newItem.Title}");
@@ -121,36 +197,43 @@ public static class Program
 
     private static void EditItem(MoneyTracker moneyTracker)
     {
-        Console.Write("Enter ID of item to edit or delete: ");
+        AnsiConsole.Write($"[bold yellow]\nEnter ID of item to edit or delete:[/] ");
         int itemId = Convert.ToInt32(Console.ReadLine());
 
-        Item? existingItem = moneyTracker.Items.FirstOrDefault(i => i.ItemId == itemId); // Make existingItem nullable
+        Item? existingItem = moneyTracker.Items.FirstOrDefault(i => i.ItemId == itemId);
 
-        if (existingItem != null) // Check if existingItem is not null
+        if (existingItem != null)
         {
             var editOrDeletePrompt = new SelectionPrompt<string>()
-                .Title("[bold yellow]\nWould you like to edit or delete this item?[/]")
+                .Title($"[bold yellow]\nWould you like to edit or delete this item?[/]")
                 .AddChoices(new[] { "Edit", "Delete" });
 
             string action = AnsiConsole.Prompt(editOrDeletePrompt);
 
             if (action == "Edit")
             {
-                Console.WriteLine($"Current Title: {existingItem.Title}");
-                Console.Write("Enter new title (leave blank to keep current): ");
+                AnsiConsole.WriteLine($"Current Title: {existingItem.Title}");
+                AnsiConsole.Write($"[bold yellow]\nEnter new Title[/] [bold white]\n(leave blank to keep current):[/]");
 
                 string? newTitle = Console.ReadLine();
                 newTitle = string.IsNullOrWhiteSpace(newTitle) ? existingItem.Title : newTitle;
 
-                Console.WriteLine($"Current Amount: {existingItem.Amount}");
-                Console.Write("Enter new amount (leave blank to keep current): ");
+                AnsiConsole.WriteLine($"Current Amount: {existingItem.Amount}");
+                AnsiConsole.Write($"[bold yellow]\nEnter new Amount[/] [bold white]\n(leave blank to keep current):[/]");
 
-                float newAmount = existingItem.Amount;
-                string? newAmountInput = Console.ReadLine();
+                decimal newAmount = existingItem.Amount; string? newAmountInput = Console.ReadLine();
 
                 if (!string.IsNullOrWhiteSpace(newAmountInput))
                 {
-                    newAmount = Convert.ToSingle(newAmountInput);
+
+                    if (decimal.TryParse(newAmountInput, out newAmount))
+                    {
+                        existingItem.Amount = newAmount;
+                    }
+                    else
+                    {
+                        AnsiConsole.WriteLine("Invalid input. Please enter a valid decimal amount.");
+                    }
                 }
 
 
@@ -160,12 +243,12 @@ public static class Program
                 Item newItem = new Item(itemId, newTitle, Math.Abs(newAmount), newDate, newItemType);
                 moneyTracker.EditItem(itemId, newItem);
 
-                AnsiConsole.MarkupLine($"Edited item: {newItem.Title}");
+                AnsiConsole.MarkupLine($"[bold yellow]\nEdited item: [italic]{newItem.Title}[/][/]");
             }
             else if (action == "Delete")
             {
                 var confirmDeletePrompt = new SelectionPrompt<string>()
-                    .Title($"[red]Are you sure you want to delete the item '[blue]{existingItem.Title}[/]'?[/]")
+                    .Title($"[red]Are you sure you want to delete the item '[italic blue]{existingItem.Title}[/]'?[/]")
                     .AddChoices(new[] { "Yes", "No" });
 
                 string confirmAction = AnsiConsole.Prompt(confirmDeletePrompt);
@@ -183,7 +266,7 @@ public static class Program
                     moneyTracker.Items.Remove(existingItem);
                     moneyTracker.SaveItems();
 
-                    AnsiConsole.MarkupLine($"Deleted item: [blue]{existingItem.Title}[/]");
+                    AnsiConsole.MarkupLine($"[bold yellow]\nDeleted item:[/] [italic blue]{existingItem.Title}[/]");
                 }
                 else
                 {
@@ -193,7 +276,7 @@ public static class Program
         }
         else
         {
-            Console.WriteLine("Item not found."); // Handle case when existingItem is null
+            Console.WriteLine("Item not found.");
         }
     }
 }
