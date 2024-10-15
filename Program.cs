@@ -60,7 +60,7 @@ public static class Program
                     SortItems();
                     break;
 
-                case "Edit or Delete Item":
+                case "Edit or Delete an Item":
                     EditItem(_moneyTracker);
                     break;
 
