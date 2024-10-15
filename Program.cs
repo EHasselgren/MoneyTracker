@@ -87,12 +87,10 @@ public static class Program
             .AddColumn("[white]Month[/]")
             .AddColumn("[white]Type[/]");
 
-        // filter items based on the filterType
         IEnumerable<Item> itemsToDisplay = filterType.HasValue
             ? _moneyTracker.Items.Where(i => i.ItemType == filterType.Value)
             : _moneyTracker.Items;
 
-        // populate the table with filtered items
         foreach (var item in itemsToDisplay)
         {
             itemsTable.AddRow(
@@ -105,32 +103,45 @@ public static class Program
             );
         }
 
-        var balanceTable = new Table()
-            .AddColumn("[white]Total Balance[/]");
-        balanceTable.AddRow($"[yellow]{_moneyTracker.Balance:C2}[/]");
+        var balanceTable = new Table().AddColumn("[yellow bold]Total Balance[/]");
+        balanceTable.AddRow($"[white]{_moneyTracker.Balance:C2}[/]");
 
-        // display total income or expenses based on itemType
         if (filterType == ItemType.Income)
         {
             var totalIncome = _moneyTracker.GetFilteredItems(ItemType.Income).Sum(item => item.Amount);
             balanceTable = new Table()
-                .AddColumn("[white]Total Income[/]")
-                .AddRow($"[green]{totalIncome:C2}[/]");
+                .AddColumn("[green bold]Total Income[/]")
+                .AddRow($"[white]{totalIncome:C2}[/]");
         }
         else if (filterType == ItemType.Expense)
         {
             var totalExpenses = _moneyTracker.GetFilteredItems(ItemType.Expense).Sum(item => item.Amount);
             balanceTable = new Table()
-                .AddColumn("[white]Total Expenses[/]")
-                .AddRow($"[red]{-totalExpenses:C2}[/]");
+                .AddColumn("[red bold]Total Expenses[/]")
+                .AddRow($"[white]{-totalExpenses:C2}[/]");
         }
 
-        // Create main display panel with dynamic header based on itemType
+        var oldestDate = itemsToDisplay.Min(item => item.Date);
+        var newestDate = itemsToDisplay.Max(item => item.Date);
+
+        var dateRangeTable = new Table().AddColumn("[yellow bold]Date Range[/]");
+        dateRangeTable.AddRow($"[white]{new CultureInfo("se-SW").TextInfo.ToTitleCase(oldestDate.ToString("MMMM dd, yyyy").ToLower())} - {new CultureInfo("se-SW").TextInfo.ToTitleCase(newestDate.ToString("MMMM dd, yyyy").ToLower())}[/]");
+
+        var summaryTable = new Columns(
+            new Panel(balanceTable) { Border = BoxBorder.Square },
+            new Panel(dateRangeTable) { Border = BoxBorder.Square }
+        );
+
+        var headerTitle = filterType switch
+        {
+            ItemType.Income => "[bold yellow]Income Items[/]",
+            ItemType.Expense => "[bold yellow]Expense Items[/]",
+            _ => "[bold yellow]All Transactions[/]"
+        };
+
         var mainPanel = new Panel(new Rows(
-            new Columns(
-                new Panel(itemsTable) { Border = BoxBorder.Square, Header = new PanelHeader(filterType == ItemType.Income ? "Income Items" : "Expense Items") },
-                new Panel(balanceTable) { Border = BoxBorder.Square, Header = new PanelHeader("Total Balance") }
-            )
+            summaryTable,
+            new Panel(itemsTable) { Border = BoxBorder.Square, Header = new PanelHeader(headerTitle) }
         ))
         {
             Border = BoxBorder.Rounded,
@@ -140,6 +151,8 @@ public static class Program
 
         AnsiConsole.Write(mainPanel);
     }
+
+
 
 
     private static void SortItems(ItemType? filterType = null)
