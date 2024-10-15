@@ -2,12 +2,12 @@
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 public static class Program
 {
     private static MoneyTracker _moneyTracker = new MoneyTracker();
-
     public static void Main(string[] args)
     {
         _moneyTracker.LoadItems();
@@ -89,7 +89,7 @@ public static class Program
                 item.Title,
                 $"[{(item.ItemType == ItemType.Expense ? "red" : "green")}]"
                 + $"{(item.ItemType == ItemType.Expense ? "-" : "")}{item.Amount:C2}[/]",
-                item.Date.ToString("MMMM dd, yyyy"),
+        new CultureInfo("se-SW").TextInfo.ToTitleCase(item.Date.ToString("MMMM dd, yyyy").ToLower()),
                 $"[{(item.ItemType == ItemType.Expense ? "red" : "green")}] {item.ItemType} [/]"
             );
         }
@@ -129,8 +129,9 @@ public static class Program
         AnsiConsole.Write(mainPanel);
     }
 
-    private static void SortItems()
+    private static void SortItems(ItemType? filterType = null)
     {
+        // Create sorting menu options
         var sortOptions = new List<string>
     {
         "Sort by ID",
@@ -141,35 +142,63 @@ public static class Program
     };
 
         var sortPrompt = new SelectionPrompt<string>()
-            .PageSize(5)
+            .PageSize(sortOptions.Count > 3 ? sortOptions.Count : 3) // make sure page size is at least 3, fails if pagesize is below 3, should handle differently
             .AddChoices(sortOptions)
-            .Title($"[bold yellow]\nSelect a sorting option:[/]");
+            .Title("[bold yellow]\nSelect a sorting option:[/]");
+
 
         var sortSelection = AnsiConsole.Prompt(sortPrompt);
 
+        // create list depending on user selection in sorting menu
+        IEnumerable<Item> itemsToSort = filterType.HasValue
+            ? _moneyTracker.Items.Where(i => i.ItemType == filterType.Value)
+            : _moneyTracker.Items;
+
+        // ask for sorting direction
+        var directionOptions = new List<string> { "Ascending", "Descending" };
+        var directionPrompt = new SelectionPrompt<string>()
+            .PageSize(directionOptions.Count > 3 ? directionOptions.Count : 3) // same as PageSize issue in SortPrompt.
+            .AddChoices(directionOptions)
+            .Title("[bold yellow]\nSelect sorting direction:[/]");
+
+        var directionSelection = AnsiConsole.Prompt(directionPrompt);
+
+        // Apply sorting based on selection
         switch (sortSelection)
         {
             case "Sort by ID":
-                _moneyTracker.Items = _moneyTracker.Items.OrderBy(i => i.ItemId).ToList();
+                itemsToSort = directionSelection == "Ascending"
+                    ? itemsToSort.OrderBy(i => i.ItemId)
+                    : itemsToSort.OrderByDescending(i => i.ItemId);
                 break;
             case "Sort by Title":
-                _moneyTracker.Items = _moneyTracker.Items.OrderBy(i => i.Title).ToList();
+                itemsToSort = directionSelection == "Ascending"
+                    ? itemsToSort.OrderBy(i => i.Title)
+                    : itemsToSort.OrderByDescending(i => i.Title);
                 break;
             case "Sort by Amount":
-                _moneyTracker.Items = _moneyTracker.Items
-                    .OrderBy(i => i.ItemType == ItemType.Expense ? -i.Amount : i.Amount)
-                    .ToList();
+                // sort expenses as negative and incomes as positive
+                itemsToSort = directionSelection == "Ascending"
+                    ? itemsToSort.OrderBy(i => i.ItemType == ItemType.Expense ? -i.Amount : i.Amount)
+                    : itemsToSort.OrderByDescending(i => i.ItemType == ItemType.Expense ? -i.Amount : i.Amount);
                 break;
             case "Sort by Month":
-                _moneyTracker.Items = _moneyTracker.Items.OrderBy(i => i.Date).ToList();
+                itemsToSort = directionSelection == "Ascending"
+                    ? itemsToSort.OrderBy(i => i.Date)
+                    : itemsToSort.OrderByDescending(i => i.Date);
                 break;
             case "Go Back":
                 return;
         }
 
+        // Create list from our filtered items and assign it to _moneyTracker.Items
+        _moneyTracker.Items = itemsToSort.ToList();
         AnsiConsole.Clear();
-        DisplayItemsAndBalance();
+        // Display items based on filterType
+        DisplayItemsAndBalance(filterType);
     }
+
+
 
     private static void AddNewItem(MoneyTracker moneyTracker)
     {
@@ -185,16 +214,16 @@ public static class Program
         AnsiConsole.Write($"[bold yellow]\nEnter amount:[/] ");
         float amount = Convert.ToSingle(Console.ReadLine());
 
-        ItemType itemType = (amount > 0) ? ItemType.Income : ItemType.Expense;
+        ItemType itemType = (amount > 0) ? ItemType.Income : ItemType.Expense; //set income/expense based on amount
 
         DateTime currentDate = DateTime.Now;
 
-        int itemId = (moneyTracker.Items.Count > 0) ? moneyTracker.Items.Max(i => i.ItemId) + 1 : 1;
+        int itemId = (moneyTracker.Items.Count > 0) ? moneyTracker.Items.Max(i => i.ItemId) + 1 : 1; //set itemId dynamically based on amount of items in the itemsList
 
         Item newItem = new Item(itemId, title, Math.Abs((decimal)amount), currentDate, itemType);
         moneyTracker.AddItem(newItem);
 
-        AnsiConsole.MarkupLine($"Added new item: {newItem.Title}");
+        AnsiConsole.MarkupLine($"Added new item: [blue]{newItem.Title}[/]");
     }
 
     private static void EditItem(MoneyTracker moneyTracker)
@@ -254,8 +283,10 @@ public static class Program
                     .AddChoices(new[] { "Yes", "No" });
 
                 string confirmAction = AnsiConsole.Prompt(confirmDeletePrompt);
+
                 if (confirmAction == "Yes")
                 {
+                    // calculate balance after deleting an item                
                     if (existingItem.ItemType == ItemType.Income)
                     {
                         moneyTracker.Balance -= existingItem.Amount;
