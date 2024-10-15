@@ -80,6 +80,7 @@ public static class Program
 
     private static void DisplayItemsAndBalance(ItemType? filterType = null)
     {
+        // Create items table
         var itemsTable = new Table()
             .AddColumn("[white]ID[/]")
             .AddColumn("[white]Title[/]")
@@ -140,13 +141,14 @@ public static class Program
         };
 
         var mainPanel = new Panel(new Rows(
-            summaryTable,
-            new Panel(itemsTable) { Border = BoxBorder.Square, Header = new PanelHeader(headerTitle) }
+            new Panel(itemsTable) { Border = BoxBorder.Square, Header = new PanelHeader(headerTitle) },
+            summaryTable
+
         ))
         {
             Border = BoxBorder.Rounded,
             Padding = new Padding(2, 1),
-            Header = new PanelHeader("[bold yellow]Money Tracker[/]")
+            Header = new PanelHeader("[bold italic slowblink #85BB65]Money Tracker[/]")
         };
 
         AnsiConsole.Write(mainPanel);

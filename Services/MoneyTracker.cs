@@ -85,13 +85,11 @@ public class MoneyTracker
 
     public void PrintItemsToFile()
     {
-        AnsiConsole.MarkupLine("[bold yellow]Enter a file name to save the items list (without extension): [/]");
-        string fileName = Console.ReadLine()?.Trim() ?? "saved_items.txt";
+        string fileName = AnsiConsole.Ask<string>("[bold yellow]Enter a file name to save the items list (without extension): [/]").Trim();
 
         if (string.IsNullOrWhiteSpace(fileName))
         {
-            AnsiConsole.WriteLine("Invalid file name.");
-            return;
+            fileName = "saved_items.txt";
         }
 
         // create file path with .txt
