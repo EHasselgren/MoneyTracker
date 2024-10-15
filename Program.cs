@@ -104,8 +104,17 @@ public static class Program
             );
         }
 
+        // Check if items exist
+        if (!itemsToDisplay.Any())
+        {
+            AnsiConsole.MarkupLine("[yellow]No items to display.[/]");
+            return;
+        }
+
         var balanceTable = new Table().AddColumn("[yellow bold]Total Balance[/]");
         balanceTable.AddRow($"[white]{_moneyTracker.Balance:C2}[/]");
+
+        //filter by income/expense:
 
         if (filterType == ItemType.Income)
         {
@@ -126,13 +135,15 @@ public static class Program
         var newestDate = itemsToDisplay.Max(item => item.Date);
 
         var dateRangeTable = new Table().AddColumn("[yellow bold]Date Range[/]");
-        dateRangeTable.AddRow($"[white]{new CultureInfo("se-SW").TextInfo.ToTitleCase(oldestDate.ToString("MMMM dd, yyyy").ToLower())} - {new CultureInfo("se-SW").TextInfo.ToTitleCase(newestDate.ToString("MMMM dd, yyyy").ToLower())}[/]");
+        dateRangeTable.AddRow($"[white]{new CultureInfo("se-SW").TextInfo.ToTitleCase(oldestDate.ToString("MMMM dd, yyyy").ToLower())} " +
+            $"- {new CultureInfo("se-SW").TextInfo.ToTitleCase(newestDate.ToString("MMMM dd, yyyy").ToLower())}[/]");
 
         var summaryTable = new Columns(
             new Panel(balanceTable) { Border = BoxBorder.Square },
             new Panel(dateRangeTable) { Border = BoxBorder.Square }
         );
 
+        // change menu header based on ItemType
         var headerTitle = filterType switch
         {
             ItemType.Income => "[bold yellow]Income Items[/]",
@@ -143,7 +154,6 @@ public static class Program
         var mainPanel = new Panel(new Rows(
             new Panel(itemsTable) { Border = BoxBorder.Square, Header = new PanelHeader(headerTitle) },
             summaryTable
-
         ))
         {
             Border = BoxBorder.Rounded,
@@ -153,10 +163,6 @@ public static class Program
 
         AnsiConsole.Write(mainPanel);
     }
-
-
-
-
     private static void SortItems(ItemType? filterType = null)
     {
         var sortOptions = new List<string>

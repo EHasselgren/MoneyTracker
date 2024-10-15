@@ -39,7 +39,7 @@ public class MoneyTracker
         }
     }
 
-    private void CalculateInitialBalance()
+    void CalculateInitialBalance()
     {
         Balance = Items.Sum(item => item.ItemType == ItemType.Income ? item.Amount : -item.Amount);
     }
@@ -65,6 +65,7 @@ public class MoneyTracker
     public void EditItem(int itemId, Item newItem)
     {
         var existingItem = Items.FirstOrDefault(i => i.ItemId == itemId);
+
         if (existingItem != null)
         {
             Balance -= existingItem.Amount; // deduct old amount from balance
@@ -108,6 +109,7 @@ public class MoneyTracker
                     writer.WriteLine($"{item.ItemId}\t{item.Title}\t{item.Amount:C2}\t{item.Date.ToShortDateString()}\t{item.ItemType}");
                 }
             }
+
             AnsiConsole.MarkupLine($"[green]Items list has been saved to {filePath}[/]");
         }
         catch (Exception ex)
