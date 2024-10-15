@@ -156,7 +156,9 @@ public static class Program
                 _moneyTracker.Items = _moneyTracker.Items.OrderBy(i => i.Title).ToList();
                 break;
             case "Sort by Amount":
-                _moneyTracker.Items = _moneyTracker.Items.OrderBy(i => i.Amount).ToList();
+                _moneyTracker.Items = _moneyTracker.Items
+                    .OrderBy(i => i.ItemType == ItemType.Expense ? -i.Amount : i.Amount)
+                    .ToList();
                 break;
             case "Sort by Month":
                 _moneyTracker.Items = _moneyTracker.Items.OrderBy(i => i.Date).ToList();
