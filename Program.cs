@@ -189,7 +189,7 @@ public static class Program
 
         var directionSelection = AnsiConsole.Prompt(directionPrompt);
 
-        // Apply sorting based on selection
+        // sort based on sortSelection
         switch (sortSelection)
         {
             case "Sort by ID":
@@ -246,7 +246,7 @@ public static class Program
         Item newItem = new Item(itemId, title, Math.Abs((decimal)amount), currentDate, itemType);
         moneyTracker.AddItem(newItem);
 
-        AnsiConsole.MarkupLine($"Added new item: [blue]{newItem.Title}[/]");
+        AnsiConsole.MarkupLine($"[bold yellow]\nAdded new item:[/] [blue]{newItem.Title}[/]");
     }
 
     private static void EditItem(MoneyTracker moneyTracker)
@@ -266,13 +266,13 @@ public static class Program
 
             if (action == "Edit")
             {
-                AnsiConsole.MarkupLine($"Current Title: {existingItem.Title}");
+                AnsiConsole.MarkupLine($"\nCurrent Title: [bold blue]{existingItem.Title}[/]");
                 AnsiConsole.MarkupLine($"[bold yellow]\nEnter new Title[/] [bold white]\n(leave blank to keep current):[/]");
 
                 string? newTitle = Console.ReadLine();
                 newTitle = string.IsNullOrWhiteSpace(newTitle) ? existingItem.Title : newTitle;
 
-                AnsiConsole.MarkupLine($"Current Amount: {existingItem.Amount}");
+                AnsiConsole.MarkupLine($"\nCurrent Amount: {existingItem.Amount}");
                 AnsiConsole.MarkupLine($"[bold yellow]\nEnter new Amount[/] [bold white]\n(leave blank to keep current):[/]");
 
                 decimal newAmount = existingItem.Amount; string? newAmountInput = Console.ReadLine();
@@ -295,12 +295,12 @@ public static class Program
                 Item newItem = new Item(itemId, newTitle, Math.Abs(newAmount), newDate, newItemType);
                 moneyTracker.EditItem(itemId, newItem);
 
-                AnsiConsole.MarkupLine($"[bold yellow]\nEdited item: [italic]{newItem.Title}[/][/]");
+                AnsiConsole.MarkupLine($"[bold yellow]\nEdited item: [bold blue]{newItem.Title}[/][/]");
             }
             else if (action == "Delete")
             {
                 var confirmDeletePrompt = new SelectionPrompt<string>()
-                    .Title($"[red]Are you sure you want to delete the item '[italic blue]{existingItem.Title}[/]'?[/]")
+                    .Title($"[red]Are you sure you want to delete the item '[bold blue]{existingItem.Title}[/]'?[/]")
                     .AddChoices(new[] { "Yes", "No" });
 
                 string confirmAction = AnsiConsole.Prompt(confirmDeletePrompt);
