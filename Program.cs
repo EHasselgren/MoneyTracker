@@ -8,6 +8,7 @@ using System.Linq;
 public static class Program
 {
     private static MoneyTracker _moneyTracker = new MoneyTracker();
+
     public static void Main(string[] args)
     {
         _moneyTracker.LoadItems();
@@ -19,14 +20,14 @@ public static class Program
             DisplayItemsAndBalance();
 
             var options = new List<string>
-        {
-            "Show Income Items",
-            "Show Expense Items",
-            "Sort Items",
-            "Add New Item",
-            "Edit or Delete Item",
-            "Save and Quit"
-        };
+            {
+                "Show Income Items",
+                "Show Expense Items",
+                "Sort Items",
+                "Add New Item",
+                "Edit or Delete Item",
+                "Save and Quit"
+            };
 
             var selectionPrompt = new SelectionPrompt<string>()
                 .PageSize(6)
@@ -35,15 +36,14 @@ public static class Program
 
             var selection = AnsiConsole.Prompt(selectionPrompt);
 
+            // handle selection based on user input
             switch (selection)
             {
                 case "Show Income Items":
-                    AnsiConsole.Clear();
                     DisplayItemsAndBalance(ItemType.Income);
                     break;
 
                 case "Show Expense Items":
-                    AnsiConsole.Clear();
                     DisplayItemsAndBalance(ItemType.Expense);
                     break;
 
@@ -64,6 +64,7 @@ public static class Program
                     return;
             }
 
+            // pause before clearing the screen
             AnsiConsole.WriteLine("Press any key to continue...");
             AnsiConsole.Console.Input.ReadKey(false);
         }
@@ -71,6 +72,7 @@ public static class Program
 
     private static void DisplayItemsAndBalance(ItemType? filterType = null)
     {
+        // create table for items
         var itemsTable = new Table()
             .AddColumn("[white]ID[/]")
             .AddColumn("[white]Title[/]")
@@ -82,6 +84,7 @@ public static class Program
             ? _moneyTracker.Items.Where(i => i.ItemType == filterType.Value)
             : _moneyTracker.Items;
 
+        // populate the table with filtered items
         foreach (var item in itemsToDisplay)
         {
             itemsTable.AddRow(
@@ -89,16 +92,17 @@ public static class Program
                 item.Title,
                 $"[{(item.ItemType == ItemType.Expense ? "red" : "green")}]"
                 + $"{(item.ItemType == ItemType.Expense ? "-" : "")}{item.Amount:C2}[/]",
-        new CultureInfo("se-SW").TextInfo.ToTitleCase(item.Date.ToString("MMMM dd, yyyy").ToLower()),
+                new CultureInfo("se-SW").TextInfo.ToTitleCase(item.Date.ToString("MMMM dd, yyyy").ToLower()),
                 $"[{(item.ItemType == ItemType.Expense ? "red" : "green")}] {item.ItemType} [/]"
             );
         }
 
+        // Calculate balance table
         var balanceTable = new Table()
             .AddColumn("[white]Total Balance[/]");
-
         balanceTable.AddRow($"[yellow]{_moneyTracker.Balance:C2}[/]");
 
+        // Display balance based on filter type
         if (filterType == ItemType.Income)
         {
             var totalIncome = _moneyTracker.GetFilteredItems(ItemType.Income).Sum(item => item.Amount);
@@ -114,9 +118,10 @@ public static class Program
                 .AddRow($"[red]{-totalExpenses:C2}[/]");
         }
 
+        // Create main display panel
         var columnsLayout = new Columns(
             new Panel(itemsTable) { Border = BoxBorder.Square, Header = new PanelHeader("Items") },
-            new Panel(balanceTable) { Border = BoxBorder.Square, Header = new PanelHeader(filterType == ItemType.Income ? "Total Income" : (filterType == ItemType.Expense ? "Total Expenses" : "Total Balance")) }
+            new Panel(balanceTable) { Border = BoxBorder.Square, Header = new PanelHeader("Total Balance") }
         );
 
         var mainPanel = new Panel(new Rows(columnsLayout))
@@ -163,7 +168,7 @@ public static class Program
 
         var directionSelection = AnsiConsole.Prompt(directionPrompt);
 
-        // Apply sorting based on selection
+        // apply sorting based on selection
         switch (sortSelection)
         {
             case "Sort by ID":
@@ -247,7 +252,7 @@ public static class Program
                 AnsiConsole.Write($"[bold yellow]\nEnter new Title[/] [bold white]\n(leave blank to keep current):[/]");
 
                 string? newTitle = Console.ReadLine();
-                newTitle = string.IsNullOrWhiteSpace(newTitle) ? existingItem.Title : newTitle;
+                newTitle = string.IsNullOrWhiteSpace(newTitle) ? existingItem.Title : newTitle; //set new data if we input new information, otherwise keep old data
 
                 AnsiConsole.WriteLine($"Current Amount: {existingItem.Amount}");
                 AnsiConsole.Write($"[bold yellow]\nEnter new Amount[/] [bold white]\n(leave blank to keep current):[/]");
