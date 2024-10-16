@@ -13,16 +13,16 @@ namespace MoneyTracker
 {
     public static class Program
     {
-        private static ItemService _itemService = new ItemService();
-        private static DisplayService _displayService = new DisplayService(_itemService);
-        private static InputService _inputService = new InputService();
-        private static MenuService _menuService = new MenuService(_itemService, _displayService, _inputService);
+        private static readonly ItemService _itemService = new();
+        private static readonly DisplayService _displayService = new(_itemService);
+        private static readonly InputService _inputService = new();
+        private static readonly MenuService _menuService = new(_itemService, _displayService, _inputService);
 
         public static void Main(string[] args)
         {
             _itemService.LoadItems();
-            _menuService = new MenuService(_itemService, _displayService, _inputService);
             _menuService.Start();
         }
     }
+
 }

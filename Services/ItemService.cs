@@ -68,7 +68,7 @@ namespace MoneyTracker.Services
 
         public void EditItem(int itemId, Item newItem)
         {
-            var existingItem = Items.FirstOrDefault(i => i.ItemId == itemId);
+            Item? existingItem = Items.FirstOrDefault(i => i.ItemId == itemId);
 
             if (existingItem != null)
             {
@@ -108,7 +108,7 @@ namespace MoneyTracker.Services
                     writer.WriteLine("ID\tTitle\tAmount\tDate\tType");
                     writer.WriteLine("------------------------------------------------");
 
-                    foreach (var item in Items)
+                    foreach (Item item in Items)
                     {
                         writer.WriteLine($"{item.ItemId}\t{item.Title}\t{item.Amount:C2}\t{item.Date.ToShortDateString()}\t{item.ItemType}");
                     }
@@ -122,4 +122,5 @@ namespace MoneyTracker.Services
             }
         }
     }
+
 }

@@ -18,7 +18,7 @@ namespace MoneyTracker.Services
 
         public void DisplayItemsAndBalance(ItemType? filterType = null)
         {
-            var itemsTable = new Table()
+            Table itemsTable = new Table()
                 .AddColumn("[white]ID[/]")
                 .AddColumn("[white]Title[/]")
                 .AddColumn("[white]Amount[/]")
@@ -29,7 +29,7 @@ namespace MoneyTracker.Services
                 ? _itemService.Items.Where(i => i.ItemType == filterType.Value)
                 : _itemService.Items;
 
-            foreach (var item in itemsToDisplay)
+            foreach (Item item in itemsToDisplay)
             {
                 itemsTable.AddRow(
                     item.ItemId.ToString(),
@@ -47,23 +47,23 @@ namespace MoneyTracker.Services
                 return;
             }
 
-            var balanceTable = CreateBalanceTable(filterType);
-            var dateRangeTable = CreateDateRangeTable(itemsToDisplay);
+            Table balanceTable = CreateBalanceTable(filterType);
+            Table dateRangeTable = CreateDateRangeTable(itemsToDisplay);
 
-            var summaryTable = new Columns(
+            Columns summaryTable = new Columns(
                 new Panel(balanceTable) { Border = BoxBorder.Square },
                 new Panel(dateRangeTable) { Border = BoxBorder.Square }
             );
 
             // change menu header based on ItemType
-            var headerTitle = filterType switch
+            string headerTitle = filterType switch
             {
                 ItemType.Income => "[bold green]Income Items[/]",
                 ItemType.Expense => "[bold red]Expense Items[/]",
                 _ => "[bold yellow]All Transactions[/]"
             };
 
-            var mainPanel = new Panel(new Rows(
+            Panel mainPanel = new Panel(new Rows(
                 new Panel(itemsTable) { Border = BoxBorder.Square, Header = new PanelHeader(headerTitle) },
                 summaryTable
             ))
@@ -78,34 +78,33 @@ namespace MoneyTracker.Services
 
         private Table CreateBalanceTable(ItemType? filterType)
         {
-            var balanceTable = new Table().AddColumn("[yellow bold]Total Balance[/]");
+            Table balanceTable = new Table().AddColumn("[yellow bold]Total Balance[/]");
             balanceTable.AddRow($"[white]{_itemService.Balance:C2}[/]");
 
             // filter by income/expense:
             if (filterType == ItemType.Income)
             {
-                var totalIncome = _itemService.GetFilteredItems(ItemType.Income).Sum(item => item.Amount);
+                decimal totalIncome = _itemService.GetFilteredItems(ItemType.Income).Sum(item => item.Amount);
                 balanceTable = new Table()
                     .AddColumn("[green bold]Total Income[/]")
                     .AddRow($"[white]{totalIncome:C2}[/]");
             }
             else if (filterType == ItemType.Expense)
             {
-                var totalExpenses = _itemService.GetFilteredItems(ItemType.Expense).Sum(item => item.Amount);
+                decimal totalExpenses = _itemService.GetFilteredItems(ItemType.Expense).Sum(item => item.Amount);
                 balanceTable = new Table()
                     .AddColumn("[red bold]Total Expenses[/]")
                     .AddRow($"[white]{-totalExpenses:C2}[/]");
             }
-
             return balanceTable;
         }
 
         private Table CreateDateRangeTable(IEnumerable<Item> itemsToDisplay)
         {
-            var oldestDate = itemsToDisplay.Min(item => item.Date);
-            var newestDate = itemsToDisplay.Max(item => item.Date);
+            DateTime oldestDate = itemsToDisplay.Min(item => item.Date);
+            DateTime newestDate = itemsToDisplay.Max(item => item.Date);
 
-            var dateRangeTable = new Table().AddColumn("[yellow bold]Date Range[/]");
+            Table dateRangeTable = new Table().AddColumn("[yellow bold]Date Range[/]");
             dateRangeTable.AddRow($"[white]{new CultureInfo("se-SW").TextInfo.ToTitleCase(oldestDate.ToString("MMMM dd, yyyy").ToLower())} " +
                 $"- {new CultureInfo("se-SW").TextInfo.ToTitleCase(newestDate.ToString("MMMM dd, yyyy").ToLower())}[/]");
 

@@ -28,7 +28,7 @@ namespace MoneyTracker.Services
 
         public string PromptForEditOrDelete()
         {
-            var editOrDeletePrompt = new SelectionPrompt<string>()
+            SelectionPrompt<string> editOrDeletePrompt = new SelectionPrompt<string>()
                 .Title($"[bold yellow]\nWould you like to edit or delete this item?[/]")
                 .AddChoices(new[] { "Edit", "Delete" });
 
@@ -37,7 +37,7 @@ namespace MoneyTracker.Services
 
         public string PromptForSortOption(List<string> sortOptions)
         {
-            var sortPrompt = new SelectionPrompt<string>()
+            SelectionPrompt<string> sortPrompt = new SelectionPrompt<string>()
                 .PageSize(sortOptions.Count > 3 ? sortOptions.Count : 3)
                 .AddChoices(sortOptions)
                 .Title("[bold yellow]\nSelect a sorting option:[/]");
@@ -47,8 +47,8 @@ namespace MoneyTracker.Services
 
         public string PromptForSortDirection()
         {
-            var directionOptions = new List<string> { "Ascending", "Descending" };
-            var directionPrompt = new SelectionPrompt<string>()
+            List<string> directionOptions = new List<string> { "Ascending", "Descending" };
+            SelectionPrompt<string> directionPrompt = new SelectionPrompt<string>()
                 .PageSize(directionOptions.Count > 3 ? directionOptions.Count : 3)
                 .AddChoices(directionOptions)
                 .Title("[bold yellow]\nSelect sorting direction:[/]");
@@ -56,5 +56,6 @@ namespace MoneyTracker.Services
             return AnsiConsole.Prompt(directionPrompt);
         }
     }
+
 }
 

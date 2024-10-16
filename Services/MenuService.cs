@@ -29,25 +29,25 @@ namespace MoneyTracker.Services
             {
                 AnsiConsole.Clear();
                 _displayService.DisplayItemsAndBalance();
-                var selection = GetMenuSelection();
+                string selection = GetMenuSelection();
                 running = HandleMenuSelection(selection);
             }
         }
 
         private string GetMenuSelection()
         {
-            var options = new List<string>
-            {
-                "Add New Item",
-                "Sort Items",
-                "Show Incoming",
-                "Show Expenses",
-                "Edit or Delete an Item",
-                "Print Items List",
-                "Save and Quit"
-            };
+            List<string> options = new List<string>
+        {
+            "Add New Item",
+            "Sort Items",
+            "Show Incoming",
+            "Show Expenses",
+            "Edit or Delete an Item",
+            "Print Items List",
+            "Save and Quit"
+        };
 
-            var selectionPrompt = new SelectionPrompt<string>()
+            SelectionPrompt<string> selectionPrompt = new SelectionPrompt<string>()
                 .PageSize(7)
                 .AddChoices(options)
                 .Title("[bold yellow]\nSelect an option:[/]");
@@ -121,7 +121,7 @@ namespace MoneyTracker.Services
         {
             if (!items.Any()) return 1;
 
-            var existingIds = new HashSet<int>(items.Select(i => i.ItemId));
+            HashSet<int> existingIds = new HashSet<int>(items.Select(i => i.ItemId));
 
             for (int id = 1; id <= existingIds.Count + 1; id++)
             {
@@ -137,13 +137,18 @@ namespace MoneyTracker.Services
         private void EditItem()
         {
             AnsiConsole.MarkupLine($"[bold yellow]\nEnter ID of item to edit or delete:[/] ");
-            int itemId = Convert.ToInt32(Console.ReadLine());
+            int itemId;
+
+            while (!int.TryParse(_inputService.PromptForInput("ID:"), out itemId) || !_moneyTracker.Items.Any(i => i.ItemId == itemId))
+            {
+                AnsiConsole.MarkupLine("Invalid ID. Please try again.");
+            }
 
             Item? existingItem = _moneyTracker.Items.FirstOrDefault(i => i.ItemId == itemId);
 
             if (existingItem != null)
             {
-                var action = _inputService.PromptForEditOrDelete();
+                string action = _inputService.PromptForEditOrDelete();
                 if (action == "Edit")
                 {
                     EditExistingItem(existingItem);
@@ -185,18 +190,18 @@ namespace MoneyTracker.Services
 
         private void SortItems()
         {
-            var sortOptions = new List<string>
-            {
-                "Sort by ID",
-                "Sort by Title",
-                "Sort by Amount",
-                "Sort by Month"
-            };
+            List<string> sortOptions = new List<string>
+        {
+            "Sort by ID",
+            "Sort by Title",
+            "Sort by Amount",
+            "Sort by Month"
+        };
 
             string sortBy = _inputService.PromptForSortOption(sortOptions);
             string direction = _inputService.PromptForSortDirection();
 
-            var sortedItems = SortItems(_moneyTracker.Items.AsEnumerable(), sortBy, direction);
+            IEnumerable<Item> sortedItems = SortItems(_moneyTracker.Items.AsEnumerable(), sortBy, direction);
             _moneyTracker.Items = sortedItems.ToList();
             AnsiConsole.MarkupLine("[bold yellow]\nItems sorted successfully.[/]");
         }
@@ -217,4 +222,6 @@ namespace MoneyTracker.Services
                 : items.OrderByDescending(sortKeySelector);
         }
     }
+
+
 }
