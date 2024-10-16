@@ -10,7 +10,7 @@ using MoneyTracker.Enums;
 
 namespace MoneyTracker.Services
 {
-    public class MoneyTrackerService
+    public class ItemService
     {
         public decimal Balance { get; set; }
         public List<Item> Items { get; set; } = new List<Item>();

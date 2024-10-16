@@ -11,14 +11,13 @@ namespace MoneyTracker.Services
     {
         public string PromptForInput(string message)
         {
-            AnsiConsole.MarkupLine($"[yellow]\n{message}[/]");
-            return Console.ReadLine();
+            return AnsiConsole.Ask<string>($"[yellow]{message}[/]", defaultValue: string.Empty);
         }
 
         public float PromptForAmount()
         {
-            AnsiConsole.MarkupLine($"[bold yellow]\nEnter amount:[/] ");
-            string? amountInput = Console.ReadLine();
+            string amountInput = AnsiConsole.Ask<string>("[bold yellow]Enter amount:[/] ");
+
             if (string.IsNullOrWhiteSpace(amountInput) || !float.TryParse(amountInput, out float amount))
             {
                 AnsiConsole.WriteLine("Invalid input. Please enter a valid number for the amount.");

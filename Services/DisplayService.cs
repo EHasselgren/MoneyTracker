@@ -9,11 +9,11 @@ namespace MoneyTracker.Services
 {
     public class DisplayService
     {
-        private readonly MoneyTrackerService _moneyTracker;
+        private readonly ItemService _itemService;
 
-        public DisplayService(MoneyTrackerService moneyTracker)
+        public DisplayService(ItemService itemService)
         {
-            _moneyTracker = moneyTracker;
+            _itemService = itemService;
         }
 
         public void DisplayItemsAndBalance(ItemType? filterType = null)
@@ -26,8 +26,8 @@ namespace MoneyTracker.Services
                 .AddColumn("[white]Type[/]");
 
             IEnumerable<Item> itemsToDisplay = filterType.HasValue
-                ? _moneyTracker.Items.Where(i => i.ItemType == filterType.Value)
-                : _moneyTracker.Items;
+                ? _itemService.Items.Where(i => i.ItemType == filterType.Value)
+                : _itemService.Items;
 
             foreach (var item in itemsToDisplay)
             {
@@ -79,19 +79,19 @@ namespace MoneyTracker.Services
         private Table CreateBalanceTable(ItemType? filterType)
         {
             var balanceTable = new Table().AddColumn("[yellow bold]Total Balance[/]");
-            balanceTable.AddRow($"[white]{_moneyTracker.Balance:C2}[/]");
+            balanceTable.AddRow($"[white]{_itemService.Balance:C2}[/]");
 
             // filter by income/expense:
             if (filterType == ItemType.Income)
             {
-                var totalIncome = _moneyTracker.GetFilteredItems(ItemType.Income).Sum(item => item.Amount);
+                var totalIncome = _itemService.GetFilteredItems(ItemType.Income).Sum(item => item.Amount);
                 balanceTable = new Table()
                     .AddColumn("[green bold]Total Income[/]")
                     .AddRow($"[white]{totalIncome:C2}[/]");
             }
             else if (filterType == ItemType.Expense)
             {
-                var totalExpenses = _moneyTracker.GetFilteredItems(ItemType.Expense).Sum(item => item.Amount);
+                var totalExpenses = _itemService.GetFilteredItems(ItemType.Expense).Sum(item => item.Amount);
                 balanceTable = new Table()
                     .AddColumn("[red bold]Total Expenses[/]")
                     .AddRow($"[white]{-totalExpenses:C2}[/]");

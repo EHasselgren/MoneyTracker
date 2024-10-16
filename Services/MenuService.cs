@@ -11,11 +11,11 @@ namespace MoneyTracker.Services
 {
     public class MenuService
     {
-        private readonly MoneyTrackerService _moneyTracker;
+        private readonly ItemService _moneyTracker;
         private readonly DisplayService _displayService;
         private readonly InputService _inputService;
 
-        public MenuService(MoneyTrackerService moneyTracker, DisplayService displayService, InputService inputService)
+        public MenuService(ItemService moneyTracker, DisplayService displayService, InputService inputService)
         {
             _moneyTracker = moneyTracker;
             _displayService = displayService;
