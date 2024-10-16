@@ -1,5 +1,8 @@
-﻿public enum ItemType
+﻿namespace MoneyTracker.Enums
 {
-    Income,
-    Expense
+    public enum ItemType
+    {
+        Income,
+        Expense
+    }
 }
