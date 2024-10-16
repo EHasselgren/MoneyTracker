@@ -11,7 +11,7 @@ namespace MoneyTracker.Services
     {
         public string PromptForInput(string message)
         {
-            return AnsiConsole.Ask<string>($"[yellow]{message}[/]", defaultValue: string.Empty);
+            return AnsiConsole.Ask<string>($"[yellow]{message}[/]");
         }
 
         public float PromptForAmount()

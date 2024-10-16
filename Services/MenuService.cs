@@ -137,13 +137,7 @@ namespace MoneyTracker.Services
         private void EditItem()
         {
             AnsiConsole.MarkupLine($"[bold yellow]\nEnter ID of item to edit or delete:[/] ");
-            int itemId;
-
-            while (!int.TryParse(_inputService.PromptForInput("ID:"), out itemId) || !_moneyTracker.Items.Any(i => i.ItemId == itemId))
-            {
-                AnsiConsole.MarkupLine("Invalid ID. Please try again.");
-            }
-
+            int itemId = Convert.ToInt32(Console.ReadLine());
             Item? existingItem = _moneyTracker.Items.FirstOrDefault(i => i.ItemId == itemId);
 
             if (existingItem != null)
@@ -166,17 +160,29 @@ namespace MoneyTracker.Services
 
         private void EditExistingItem(Item existingItem)
         {
-            string newTitle = _inputService.PromptForInput("Enter new title (leave blank to keep current):");
+            AnsiConsole.MarkupLine($"[yellow]Current title:[/] [blue]{existingItem.Title}[/]");
+
+            string newTitle;
+
+            newTitle = Console.ReadLine();
+
             if (string.IsNullOrWhiteSpace(newTitle))
             {
                 newTitle = existingItem.Title;
             }
 
             float newAmount = _inputService.PromptForAmount();
-            DateTime currentDate = DateTime.Now;
+            if (newAmount == 0)
+            {
+                AnsiConsole.MarkupLine("[red]Invalid amount entered. Please try again.[/]");
+                return;
+            }
 
+            // Determine the item type based on the amount
             ItemType newItemType = (newAmount > 0) ? ItemType.Income : ItemType.Expense;
-            Item updatedItem = new Item(existingItem.ItemId, newTitle, Math.Abs((decimal)newAmount), currentDate, newItemType);
+
+            Item updatedItem = new Item(existingItem.ItemId, newTitle, Math.Abs((decimal)newAmount), DateTime.Now, newItemType);
+
             _moneyTracker.EditItem(existingItem.ItemId, updatedItem);
 
             AnsiConsole.MarkupLine($"[bold yellow]\nUpdated item:[/] [blue]{updatedItem.Title}[/]");
