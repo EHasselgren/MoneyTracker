@@ -14,7 +14,17 @@ namespace MoneyTracker.Services
     {
         public decimal Balance { get; set; }
         public List<Item> Items { get; set; } = new List<Item>();
-
+        public void AddItem(Item item)
+        {
+            item.ItemId = Items.Count + 1;
+            Items.Add(item);
+            Balance += item.ItemType == ItemType.Income ? item.Amount : -Math.Abs(item.Amount);
+            SaveItems();
+        }
+        void CalculateInitialBalance()
+        {
+            Balance = Items.Sum(item => item.ItemType == ItemType.Income ? item.Amount : -item.Amount);
+        }
         public void LoadItems()
         {
             try
@@ -29,7 +39,6 @@ namespace MoneyTracker.Services
                 Items = new List<Item>();
             }
         }
-
         public void SaveItems()
         {
             try
@@ -43,22 +52,9 @@ namespace MoneyTracker.Services
             }
         }
 
-        void CalculateInitialBalance()
-        {
-            Balance = Items.Sum(item => item.ItemType == ItemType.Income ? item.Amount : -item.Amount);
-        }
-
         public List<Item> GetFilteredItems(ItemType itemType)
         {
             return Items.Where(i => i.ItemType == itemType).ToList();
-        }
-
-        public void AddItem(Item item)
-        {
-            item.ItemId = Items.Count + 1;
-            Items.Add(item);
-            Balance += item.ItemType == ItemType.Income ? item.Amount : -Math.Abs(item.Amount);
-            SaveItems();
         }
 
         public void EditItem(int itemId, Item newItem)
@@ -108,7 +104,6 @@ namespace MoneyTracker.Services
                         writer.WriteLine($"{item.ItemId}\t{item.Title}\t{item.Amount:C2}\t{item.Date.ToShortDateString()}\t{item.ItemType}");
                     }
                 }
-
                 AnsiConsole.MarkupLine($"[green]Items list has been saved to {filePath}[/]");
             }
             catch (Exception ex)
