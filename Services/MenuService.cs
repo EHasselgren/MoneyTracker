@@ -94,6 +94,7 @@ public class MenuService
             AnsiConsole.MarkupLine("[red]Title cannot be empty.[/]");
             return false;
         }
+
         return true;
     }
 
@@ -104,6 +105,7 @@ public class MenuService
             AnsiConsole.MarkupLine("[red]Amount cannot be zero.[/]");
             return false;
         }
+
         return true;
     }
 

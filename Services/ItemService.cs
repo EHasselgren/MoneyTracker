@@ -16,10 +16,12 @@ namespace MoneyTracker.Services
             Balance += item.ItemType == ItemType.Income ? item.Amount : -Math.Abs(item.Amount);
             SaveItems();
         }
+
         void CalculateInitialBalance()
         {
             Balance = Items.Sum(item => item.ItemType == ItemType.Income ? item.Amount : -item.Amount);
         }
+
         public void LoadItems()
         {
             try
@@ -33,6 +35,7 @@ namespace MoneyTracker.Services
                 AnsiConsole.WriteLine($"Error loading items: {ex.Message}");
             }
         }
+
         public void SaveItems()
         {
             try
@@ -99,6 +102,7 @@ namespace MoneyTracker.Services
                         writer.WriteLine($"{item.ItemId}\t{item.Title}\t{item.Amount:C2}\t{item.Date.ToShortDateString()}\t{item.ItemType}");
                     }
                 }
+
                 AnsiConsole.MarkupLine($"[green]Items list has been saved to {filePath}[/]");
             }
             catch (Exception ex)

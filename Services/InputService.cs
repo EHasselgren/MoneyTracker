@@ -47,7 +47,7 @@ namespace MoneyTracker.Services
             return amount;
         }
 
-        private string PromptForSelection(string title, IEnumerable<string> choices)
+        string PromptForSelection(string title, IEnumerable<string> choices)
         {
             SelectionPrompt<string> selectionPrompt = new SelectionPrompt<string>()
                 .PageSize(choices.Count() > 3 ? choices.Count() : 3)
@@ -56,6 +56,7 @@ namespace MoneyTracker.Services
 
             return AnsiConsole.Prompt(selectionPrompt);
         }
+
         public string PromptForEditOrDelete(string itemTitle)
         {
             return PromptForSelection($"[bold yellow]\nWould you like to edit or delete the item \"[blue italic bold]{itemTitle}[/]\"?[/]",
@@ -71,6 +72,5 @@ namespace MoneyTracker.Services
         {
             return PromptForSelection("[bold yellow]\nSelect sorting direction:[/]", new List<string> { "Ascending", "Descending" });
         }
-
     }
 }
