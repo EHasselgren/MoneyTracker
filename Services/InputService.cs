@@ -8,7 +8,6 @@ namespace MoneyTracker.Services
         {
             return AnsiConsole.Ask<string>($"[yellow]{message}[/]");
         }
-
         public int PromptForItemId(string promptMessage)
         {
             AnsiConsole.Markup($"[bold yellow]{promptMessage}[/] ");
@@ -21,9 +20,8 @@ namespace MoneyTracker.Services
 
             return itemId;
         }
-
         public float PromptForAmount()
-            {
+        {
             string amountInput = AnsiConsole.Ask<string>("[bold yellow]Enter amount (must be a number):[/] ");
 
             if (string.IsNullOrWhiteSpace(amountInput) || !float.TryParse(amountInput, out float amount))

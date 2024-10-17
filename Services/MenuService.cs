@@ -6,13 +6,13 @@ namespace MoneyTracker.Services
 {
     public class MenuService
     {
-        readonly ItemService _moneyTracker;
+        readonly ItemService _itemService;
         readonly DisplayService _displayService;
         readonly InputService _inputService;
 
-        public MenuService(ItemService moneyTracker, DisplayService displayService, InputService inputService)
+        public MenuService(ItemService itemService, DisplayService displayService, InputService inputService)
         {
-            _moneyTracker = moneyTracker;
+            _itemService = itemService;
             _displayService = displayService;
             _inputService = inputService;
         }
@@ -76,11 +76,11 @@ namespace MoneyTracker.Services
                     break;
 
                 case "Print Items List":
-                    _moneyTracker.PrintItemsToFile();
+                    _itemService.PrintItemsToFile();
                     break;
 
                 case "Save and Quit":
-                    _moneyTracker.SaveItems();
+                    _itemService.SaveItems();
                     return false;
             }
 
@@ -106,9 +106,9 @@ namespace MoneyTracker.Services
             ItemType itemType = (amount > 0) ? ItemType.Income : ItemType.Expense;
             DateTime currentDate = DateTime.Now;
 
-            int itemId = GetNextAvailableItemId(_moneyTracker.Items);
+            int itemId = GetNextAvailableItemId(_itemService.Items);
             Item newItem = new Item(itemId, title, Math.Abs((decimal)amount), currentDate, itemType);
-            _moneyTracker.AddItem(newItem);
+            _itemService.AddItem(newItem);
 
             AnsiConsole.MarkupLine($"[bold yellow]\nAdded new item:[/] [blue]{newItem.Title}[/]");
         }
@@ -134,7 +134,7 @@ namespace MoneyTracker.Services
         {
             int itemId = _inputService.PromptForItemId("Enter ID of item to edit or delete:");
 
-            Item? existingItem = _moneyTracker.Items.FirstOrDefault(i => i.ItemId == itemId);
+            Item? existingItem = _itemService.Items.FirstOrDefault(i => i.ItemId == itemId);
 
             if (existingItem != null)
             {
@@ -169,7 +169,7 @@ namespace MoneyTracker.Services
 
             Item updatedItem = new Item(existingItem.ItemId, newTitle, Math.Abs((decimal)newAmount), DateTime.Now, newItemType);
 
-            _moneyTracker.EditItem(existingItem.ItemId, updatedItem);
+            _itemService.EditItem(existingItem.ItemId, updatedItem);
 
             AnsiConsole.MarkupLine($"[bold yellow]\nUpdated item:[/] [blue]{updatedItem.Title}[/]");
         }
@@ -177,7 +177,7 @@ namespace MoneyTracker.Services
 
         void DeleteExistingItem(Item existingItem)
         {
-            _moneyTracker.Items.Remove(existingItem);
+            _itemService.Items.Remove(existingItem);
             AnsiConsole.MarkupLine($"[bold yellow]\nDeleted item:[/] [blue]{existingItem.Title}[/]");
         }
 
@@ -194,8 +194,8 @@ namespace MoneyTracker.Services
             string sortBy = _inputService.PromptForSortOption(sortOptions);
             string direction = _inputService.PromptForSortDirection();
 
-            IEnumerable<Item> sortedItems = SortItems(_moneyTracker.Items.AsEnumerable(), sortBy, direction);
-            _moneyTracker.Items = sortedItems.ToList();
+            IEnumerable<Item> sortedItems = SortItems(_itemService.Items.AsEnumerable(), sortBy, direction);
+            _itemService.Items = sortedItems.ToList();
             AnsiConsole.MarkupLine("[bold yellow]\nItems sorted successfully.[/]");
         }
 
