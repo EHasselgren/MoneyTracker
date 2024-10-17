@@ -8,7 +8,7 @@ namespace MoneyTracker.Services
     public class DisplayService
     {
         readonly ItemService _itemService;
-        readonly CultureInfo _swedishCulture = new CultureInfo("se-SW");
+        readonly CultureInfo _culture = new CultureInfo("se-SW"); // hardcoded for formating of dates to Swedish convention
 
         public DisplayService(ItemService itemService) => _itemService = itemService;
 
@@ -45,8 +45,8 @@ namespace MoneyTracker.Services
 
             Table dateRangeTable = new Table().AddColumn("[yellow bold]Date Range[/]");
 
-            dateRangeTable.AddRow($"[white]{_swedishCulture.TextInfo.ToTitleCase(oldestDate.ToString("MMMM dd, yyyy").ToLower())} " +
-                $"- {_swedishCulture.TextInfo.ToTitleCase(newestDate.ToString("MMMM dd, yyyy").ToLower())}[/]");
+            dateRangeTable.AddRow($"[white]{_culture.TextInfo.ToTitleCase(oldestDate.ToString("MMMM dd, yyyy").ToLower())} " +
+                $"- {_culture.TextInfo.ToTitleCase(newestDate.ToString("MMMM dd, yyyy").ToLower())}[/]");
 
             return dateRangeTable;
         }
@@ -66,7 +66,7 @@ namespace MoneyTracker.Services
 
             foreach (Item item in itemsToDisplay)
             {
-                string formattedDate = _swedishCulture.TextInfo.ToTitleCase(item.Date.ToString("MMMM dd, yyyy").ToLower());
+                string formattedDate = _culture.TextInfo.ToTitleCase(item.Date.ToString("MMMM dd, yyyy").ToLower());
 
                 itemsTable.AddRow(
                     item.ItemId.ToString(),
