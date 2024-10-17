@@ -9,7 +9,7 @@ namespace MoneyTracker
         static readonly InputService _inputService = new();
         static readonly MenuService _menuService = new(_itemService, _displayService, _inputService);
 
-        public static void Main(string[] args)
+        public static void Main()
         {
             _itemService.LoadItems();
             _menuService.Start();
