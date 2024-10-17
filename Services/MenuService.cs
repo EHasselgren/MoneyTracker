@@ -162,9 +162,7 @@ namespace MoneyTracker.Services
         {
             AnsiConsole.MarkupLine($"[yellow]Current title:[/] [blue]{existingItem.Title}[/]");
 
-            string newTitle;
-
-            newTitle = Console.ReadLine();
+            string newTitle = Console.ReadLine() ?? string.Empty;
 
             if (string.IsNullOrWhiteSpace(newTitle))
             {
@@ -203,7 +201,6 @@ namespace MoneyTracker.Services
             "Sort by Amount",
             "Sort by Month"
         };
-
             string sortBy = _inputService.PromptForSortOption(sortOptions);
             string direction = _inputService.PromptForSortDirection();
 
