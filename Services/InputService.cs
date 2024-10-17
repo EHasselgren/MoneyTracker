@@ -18,21 +18,25 @@ namespace MoneyTracker.Services
         {
             AnsiConsole.Markup($"[bold yellow]{promptMessage}[/] ");
             int itemId;
+
             while (!int.TryParse(Console.ReadLine(), out itemId))
             {
                 AnsiConsole.MarkupLine("[red]Invalid ID entered. Please enter a valid number.[/]");
             }
+
             return itemId;
         }
 
         public float PromptForAmount()
         {
             string amountInput = AnsiConsole.Ask<string>("[bold yellow]Enter amount (must be a number):[/] ");
+
             if (string.IsNullOrWhiteSpace(amountInput) || !float.TryParse(amountInput, out float amount))
             {
                 AnsiConsole.MarkupLine("[red]Invalid input. Please enter a valid number for the amount.[/]");
                 return PromptForAmount();
             }
+
             return amount;
         }
 
@@ -54,9 +58,11 @@ namespace MoneyTracker.Services
 
             return AnsiConsole.Prompt(sortPrompt);
         }
+
         public string PromptForSortDirection()
         {
             List<string> directionOptions = new List<string> { "Ascending", "Descending" };
+
             SelectionPrompt<string> directionPrompt = new SelectionPrompt<string>()
                 .PageSize(directionOptions.Count > 3 ? directionOptions.Count : 3)
                 .AddChoices(directionOptions)

@@ -1,5 +1,4 @@
-﻿
-using Spectre.Console;
+﻿using Spectre.Console;
 using System;
 using System.Globalization;
 using System.Linq;
@@ -13,10 +12,10 @@ namespace MoneyTracker
 {
     public static class Program
     {
-        private static readonly ItemService _itemService = new();
-        private static readonly DisplayService _displayService = new(_itemService);
-        private static readonly InputService _inputService = new();
-        private static readonly MenuService _menuService = new(_itemService, _displayService, _inputService);
+        static readonly ItemService _itemService = new();
+        static readonly DisplayService _displayService = new(_itemService);
+        static readonly InputService _inputService = new();
+        static readonly MenuService _menuService = new(_itemService, _displayService, _inputService);
 
         public static void Main(string[] args)
         {
@@ -24,5 +23,4 @@ namespace MoneyTracker
             _menuService.Start();
         }
     }
-
 }

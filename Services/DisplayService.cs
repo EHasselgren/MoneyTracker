@@ -9,12 +9,9 @@ namespace MoneyTracker.Services
 {
     public class DisplayService
     {
-        private readonly ItemService _itemService;
+        readonly ItemService _itemService;
 
-        public DisplayService(ItemService itemService)
-        {
-            _itemService = itemService;
-        }
+        public DisplayService(ItemService itemService) => _itemService = itemService;
 
         public void DisplayItemsAndBalance(ItemType? filterType = null)
         {
@@ -55,7 +52,7 @@ namespace MoneyTracker.Services
                 new Panel(dateRangeTable) { Border = BoxBorder.Square }
             );
 
-            // change menu header based on ItemType
+            // change menu header based on filtering
             string headerTitle = filterType switch
             {
                 ItemType.Income => "[bold green]Income Items[/]",
@@ -76,7 +73,7 @@ namespace MoneyTracker.Services
             AnsiConsole.Write(mainPanel);
         }
 
-        private Table CreateBalanceTable(ItemType? filterType)
+        Table CreateBalanceTable(ItemType? filterType)
         {
             Table balanceTable = new Table().AddColumn("[yellow bold]Total Balance[/]");
             balanceTable.AddRow($"[white]{_itemService.Balance:C2}[/]");
@@ -85,6 +82,7 @@ namespace MoneyTracker.Services
             if (filterType == ItemType.Income)
             {
                 decimal totalIncome = _itemService.GetFilteredItems(ItemType.Income).Sum(item => item.Amount);
+
                 balanceTable = new Table()
                     .AddColumn("[green bold]Total Income[/]")
                     .AddRow($"[white]{totalIncome:C2}[/]");
@@ -92,19 +90,22 @@ namespace MoneyTracker.Services
             else if (filterType == ItemType.Expense)
             {
                 decimal totalExpenses = _itemService.GetFilteredItems(ItemType.Expense).Sum(item => item.Amount);
+
                 balanceTable = new Table()
                     .AddColumn("[red bold]Total Expenses[/]")
                     .AddRow($"[white]{-totalExpenses:C2}[/]");
             }
+
             return balanceTable;
         }
 
-        private Table CreateDateRangeTable(IEnumerable<Item> itemsToDisplay)
+        Table CreateDateRangeTable(IEnumerable<Item> itemsToDisplay)
         {
             DateTime oldestDate = itemsToDisplay.Min(item => item.Date);
             DateTime newestDate = itemsToDisplay.Max(item => item.Date);
 
             Table dateRangeTable = new Table().AddColumn("[yellow bold]Date Range[/]");
+
             dateRangeTable.AddRow($"[white]{new CultureInfo("se-SW").TextInfo.ToTitleCase(oldestDate.ToString("MMMM dd, yyyy").ToLower())} " +
                 $"- {new CultureInfo("se-SW").TextInfo.ToTitleCase(newestDate.ToString("MMMM dd, yyyy").ToLower())}[/]");
 

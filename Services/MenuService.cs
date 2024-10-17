@@ -11,9 +11,9 @@ namespace MoneyTracker.Services
 {
     public class MenuService
     {
-        private readonly ItemService _moneyTracker;
-        private readonly DisplayService _displayService;
-        private readonly InputService _inputService;
+        readonly ItemService _moneyTracker;
+        readonly DisplayService _displayService;
+        readonly InputService _inputService;
 
         public MenuService(ItemService moneyTracker, DisplayService displayService, InputService inputService)
         {
@@ -25,6 +25,7 @@ namespace MoneyTracker.Services
         public void Start()
         {
             bool running = true;
+
             while (running)
             {
                 AnsiConsole.Clear();
@@ -34,7 +35,7 @@ namespace MoneyTracker.Services
             }
         }
 
-        private string GetMenuSelection()
+        string GetMenuSelection()
         {
             List<string> options = new List<string>
         {
@@ -55,7 +56,7 @@ namespace MoneyTracker.Services
             return AnsiConsole.Prompt(selectionPrompt);
         }
 
-        private bool HandleMenuSelection(string selection)
+        bool HandleMenuSelection(string selection)
         {
             switch (selection)
             {
@@ -93,13 +94,13 @@ namespace MoneyTracker.Services
             return true;
         }
 
-        private void ShowFilteredItems(ItemType itemType)
+        void ShowFilteredItems(ItemType itemType)
         {
             AnsiConsole.Clear();
             _displayService.DisplayItemsAndBalance(itemType);
         }
 
-        private void AddNewItem()
+        void AddNewItem()
         {
             string title = _inputService.PromptForInput("Enter title:");
             if (string.IsNullOrWhiteSpace(title)) return;
@@ -117,7 +118,7 @@ namespace MoneyTracker.Services
             AnsiConsole.MarkupLine($"[bold yellow]\nAdded new item:[/] [blue]{newItem.Title}[/]");
         }
 
-        private int GetNextAvailableItemId(List<Item> items)
+        int GetNextAvailableItemId(List<Item> items)
         {
             if (!items.Any()) return 1;
 
@@ -134,7 +135,7 @@ namespace MoneyTracker.Services
             return existingIds.Count + 1;
         }
 
-        private void EditItem()
+        void EditItem()
         {
             int itemId = _inputService.PromptForItemId("Enter ID of item to edit or delete:");
 
@@ -143,6 +144,7 @@ namespace MoneyTracker.Services
             if (existingItem != null)
             {
                 string action = _inputService.PromptForEditOrDelete(existingItem.Title);
+
                 if (action == "Edit")
                 {
                     EditExistingItem(existingItem);
@@ -158,7 +160,7 @@ namespace MoneyTracker.Services
             }
         }
 
-        private void EditExistingItem(Item existingItem)
+        void EditExistingItem(Item existingItem)
         {
             AnsiConsole.MarkupLine($"[yellow]Current title:[/] [blue]{existingItem.Title}[/]");
 
@@ -177,15 +179,13 @@ namespace MoneyTracker.Services
             AnsiConsole.MarkupLine($"[bold yellow]\nUpdated item:[/] [blue]{updatedItem.Title}[/]");
         }
 
-
-
-        private void DeleteExistingItem(Item existingItem)
+        void DeleteExistingItem(Item existingItem)
         {
             _moneyTracker.Items.Remove(existingItem);
             AnsiConsole.MarkupLine($"[bold yellow]\nDeleted item:[/] [blue]{existingItem.Title}[/]");
         }
 
-        private void SortItems()
+        void SortItems()
         {
             List<string> sortOptions = new List<string>
         {
@@ -194,6 +194,7 @@ namespace MoneyTracker.Services
             "Sort by Amount",
             "Sort by Month"
         };
+
             string sortBy = _inputService.PromptForSortOption(sortOptions);
             string direction = _inputService.PromptForSortDirection();
 
@@ -202,7 +203,7 @@ namespace MoneyTracker.Services
             AnsiConsole.MarkupLine("[bold yellow]\nItems sorted successfully.[/]");
         }
 
-        private IEnumerable<Item> SortItems(IEnumerable<Item> items, string sortBy, string direction)
+        IEnumerable<Item> SortItems(IEnumerable<Item> items, string sortBy, string direction)
         {
             Func<Item, object> sortKeySelector = sortBy switch
             {
@@ -218,6 +219,4 @@ namespace MoneyTracker.Services
                 : items.OrderByDescending(sortKeySelector);
         }
     }
-
-
 }
