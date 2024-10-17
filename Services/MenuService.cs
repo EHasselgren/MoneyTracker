@@ -26,7 +26,7 @@ public class MenuService
             "Show Incoming",
             "Show Expenses",
             "Edit or Delete Item",
-            "Print Items List",
+            "Print Items",
             "Save and Quit"
         };
 
@@ -47,7 +47,7 @@ public class MenuService
             "Show Expenses" => () => ShowFilteredItems(ItemType.Expense),
             "Sort Items" => SortItems,
             "Edit or Delete Item" => EditItem,
-            "Print Items List" => _itemService.PrintItemsToFile,
+            "Print Items" => _itemService.PrintItemsToFile,
             "Save and Quit" => (Action?)null,
             _ => throw new InvalidOperationException("Invalid selection")
         };
