@@ -67,13 +67,14 @@ namespace MoneyTracker.Services
 
             if (existingItem != null)
             {
-                Balance -= existingItem.Amount; // remove old amount from balance
+                // remove *old* amount from balance
+                Balance -= existingItem.Amount;
                 existingItem.Title = newItem.Title;
                 existingItem.Amount = newItem.Amount;
                 existingItem.Date = newItem.Date;
                 existingItem.ItemType = newItem.ItemType;
-
-                Balance += newItem.ItemType == ItemType.Income ? newItem.Amount : -newItem.Amount; // update balance after edit
+                // add *new* amount to balance
+                Balance += newItem.ItemType == ItemType.Income ? newItem.Amount : -newItem.Amount;
 
                 SaveItems();
             }
@@ -96,7 +97,7 @@ namespace MoneyTracker.Services
 
             try
             {
-                // write itemList to file:
+                // write itemList to file (needs alot of work, formating is awful):
                 using (StreamWriter writer = new StreamWriter(filePath))
                 {
                     writer.WriteLine("ID\tTitle\tAmount\tDate\tType");
