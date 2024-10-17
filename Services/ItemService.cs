@@ -31,7 +31,6 @@ namespace MoneyTracker.Services
             catch (Exception ex)
             {
                 AnsiConsole.WriteLine($"Error loading items: {ex.Message}");
-                Items = new List<Item>();
             }
         }
         public void SaveItems()
@@ -40,6 +39,7 @@ namespace MoneyTracker.Services
             {
                 string jsonString = JsonSerializer.Serialize(Items);
                 File.WriteAllText("items.json", jsonString);
+                CalculateInitialBalance();
             }
             catch (Exception ex)
             {
@@ -88,7 +88,7 @@ namespace MoneyTracker.Services
 
             try
             {
-                // write itemList to file (needs alot of work, formating is awful):
+                // write itemList to file (format needs more work):
                 using (StreamWriter writer = new StreamWriter(filePath))
                 {
                     writer.WriteLine("ID\tTitle\tAmount\tDate\tType");

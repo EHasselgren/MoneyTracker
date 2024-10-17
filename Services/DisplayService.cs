@@ -11,6 +11,45 @@ namespace MoneyTracker.Services
 
         public DisplayService(ItemService itemService) => _itemService = itemService;
 
+        Table CreateBalanceTable(ItemType? filterType)
+        {
+            Table balanceTable = new Table().AddColumn("[yellow bold]Total Balance[/]");
+            balanceTable.AddRow($"[white]{_itemService.Balance:C2}[/]");
+
+            // filter by income/expense:
+            if (filterType == ItemType.Income)
+            {
+                decimal totalIncome = _itemService.GetFilteredItems(ItemType.Income).Sum(item => item.Amount);
+
+                balanceTable = new Table()
+                    .AddColumn("[green bold]Total Income[/]")
+                    .AddRow($"[white]{totalIncome:C2}[/]");
+            }
+            else if (filterType == ItemType.Expense)
+            {
+                decimal totalExpenses = _itemService.GetFilteredItems(ItemType.Expense).Sum(item => item.Amount);
+
+                balanceTable = new Table()
+                    .AddColumn("[red bold]Total Expenses[/]")
+                    .AddRow($"[white]{-totalExpenses:C2}[/]");
+            }
+
+            return balanceTable;
+        }
+
+        Table CreateDateRangeTable(IEnumerable<Item> itemsToDisplay)
+        {
+            DateTime oldestDate = itemsToDisplay.Min(item => item.Date);
+            DateTime newestDate = itemsToDisplay.Max(item => item.Date);
+
+            Table dateRangeTable = new Table().AddColumn("[yellow bold]Date Range[/]");
+
+            dateRangeTable.AddRow($"[white]{new CultureInfo("se-SW").TextInfo.ToTitleCase(oldestDate.ToString("MMMM dd, yyyy").ToLower())} " +
+                $"- {new CultureInfo("se-SW").TextInfo.ToTitleCase(newestDate.ToString("MMMM dd, yyyy").ToLower())}[/]");
+
+            return dateRangeTable;
+        }
+
         public void DisplayItemsAndBalance(ItemType? filterType = null)
         {
             Table itemsTable = new Table()
@@ -69,45 +108,6 @@ namespace MoneyTracker.Services
             };
 
             AnsiConsole.Write(mainPanel);
-        }
-
-        Table CreateBalanceTable(ItemType? filterType)
-        {
-            Table balanceTable = new Table().AddColumn("[yellow bold]Total Balance[/]");
-            balanceTable.AddRow($"[white]{_itemService.Balance:C2}[/]");
-
-            // filter by income/expense:
-            if (filterType == ItemType.Income)
-            {
-                decimal totalIncome = _itemService.GetFilteredItems(ItemType.Income).Sum(item => item.Amount);
-
-                balanceTable = new Table()
-                    .AddColumn("[green bold]Total Income[/]")
-                    .AddRow($"[white]{totalIncome:C2}[/]");
-            }
-            else if (filterType == ItemType.Expense)
-            {
-                decimal totalExpenses = _itemService.GetFilteredItems(ItemType.Expense).Sum(item => item.Amount);
-
-                balanceTable = new Table()
-                    .AddColumn("[red bold]Total Expenses[/]")
-                    .AddRow($"[white]{-totalExpenses:C2}[/]");
-            }
-
-            return balanceTable;
-        }
-
-        Table CreateDateRangeTable(IEnumerable<Item> itemsToDisplay)
-        {
-            DateTime oldestDate = itemsToDisplay.Min(item => item.Date);
-            DateTime newestDate = itemsToDisplay.Max(item => item.Date);
-
-            Table dateRangeTable = new Table().AddColumn("[yellow bold]Date Range[/]");
-
-            dateRangeTable.AddRow($"[white]{new CultureInfo("se-SW").TextInfo.ToTitleCase(oldestDate.ToString("MMMM dd, yyyy").ToLower())} " +
-                $"- {new CultureInfo("se-SW").TextInfo.ToTitleCase(newestDate.ToString("MMMM dd, yyyy").ToLower())}[/]");
-
-            return dateRangeTable;
         }
     }
 }

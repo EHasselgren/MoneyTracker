@@ -20,18 +20,31 @@ namespace MoneyTracker.Services
 
             return itemId;
         }
+
+        public string PromptForNewTitle(string currentTitle)
+        {
+            AnsiConsole.MarkupLine($"[yellow]Current title:[/] [blue]{currentTitle}[/]");
+            string newTitle = AnsiConsole.Ask<string>($"[bold yellow]Enter new title (leave blank to keep current):[/]", currentTitle);
+            return string.IsNullOrWhiteSpace(newTitle) ? currentTitle : newTitle.Trim();
+        }
         public float PromptForAmount()
         {
-            string amountInput = AnsiConsole.Ask<string>("[bold yellow]Enter amount (must be a number):[/] ");
+            float amount;
+            string amountInput;
 
-            if (string.IsNullOrWhiteSpace(amountInput) || !float.TryParse(amountInput, out float amount))
+            do
             {
-                AnsiConsole.MarkupLine("[red]Invalid input. Please enter a valid number for the amount.[/]");
-                return PromptForAmount();
-            }
+                amountInput = AnsiConsole.Ask<string>("[bold yellow]Enter amount (must be a number):[/] ");
+
+                if (string.IsNullOrWhiteSpace(amountInput) || !float.TryParse(amountInput, out amount))
+                {
+                    AnsiConsole.MarkupLine("[red]Invalid input. Please enter a valid number for the amount.[/]");
+                }
+            } while (string.IsNullOrWhiteSpace(amountInput) || !float.TryParse(amountInput, out amount));
 
             return amount;
         }
+
 
         public string PromptForEditOrDelete(string itemTitle)
         {
