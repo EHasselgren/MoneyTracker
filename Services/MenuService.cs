@@ -1,11 +1,6 @@
 ﻿using MoneyTracker.Enums;
 using MoneyTracker.Models;
 using Spectre.Console;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MoneyTracker.Services
 {
@@ -179,6 +174,7 @@ namespace MoneyTracker.Services
             AnsiConsole.MarkupLine($"[bold yellow]\nUpdated item:[/] [blue]{updatedItem.Title}[/]");
         }
 
+
         void DeleteExistingItem(Item existingItem)
         {
             _moneyTracker.Items.Remove(existingItem);
@@ -209,7 +205,10 @@ namespace MoneyTracker.Services
             {
                 "Sort by ID" => i => i.ItemId,
                 "Sort by Title" => i => i.Title,
-                "Sort by Amount" => i => i.Amount,
+                "Sort by Amount" => i =>
+                    i.ItemType == ItemType.Income
+                        ? i.Amount
+                        : -i.Amount,
                 "Sort by Month" => i => i.Date.Month,
                 _ => throw new ArgumentOutOfRangeException()
             };

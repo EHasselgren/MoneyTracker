@@ -1,10 +1,5 @@
 ﻿using Spectre.Console;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text.Json;
-using System.Linq;
 using MoneyTracker.Models;
 using MoneyTracker.Enums;
 

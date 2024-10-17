@@ -1,12 +1,4 @@
-﻿using Spectre.Console;
-using System;
-using System.Globalization;
-using System.Linq;
-using System.IO;
-using System.Collections.Generic;
-using MoneyTracker.Models;
-using MoneyTracker.Services;
-using MoneyTracker.Enums;
+﻿using MoneyTracker.Services;
 
 namespace MoneyTracker
 {

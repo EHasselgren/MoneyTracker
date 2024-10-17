@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Spectre.Console;
+﻿using Spectre.Console;
 
 namespace MoneyTracker.Services
 {
@@ -28,7 +23,7 @@ namespace MoneyTracker.Services
         }
 
         public float PromptForAmount()
-        {
+            {
             string amountInput = AnsiConsole.Ask<string>("[bold yellow]Enter amount (must be a number):[/] ");
 
             if (string.IsNullOrWhiteSpace(amountInput) || !float.TryParse(amountInput, out float amount))
