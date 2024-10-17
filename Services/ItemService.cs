@@ -48,11 +48,6 @@ namespace MoneyTracker.Services
             Balance = Items.Sum(item => item.ItemType == ItemType.Income ? item.Amount : -item.Amount);
         }
 
-        public List<Item> GetSortedItems(Func<Item, object> sortBy, bool ascending = true)
-        {
-            return ascending ? Items.OrderBy(sortBy).ToList() : Items.OrderByDescending(sortBy).ToList();
-        }
-
         public List<Item> GetFilteredItems(ItemType itemType)
         {
             return Items.Where(i => i.ItemType == itemType).ToList();
@@ -60,7 +55,7 @@ namespace MoneyTracker.Services
 
         public void AddItem(Item item)
         {
-            item.ItemId = Items.Count + 1; // assign ID based on the current count
+            item.ItemId = Items.Count + 1;
             Items.Add(item);
             Balance += item.ItemType == ItemType.Income ? item.Amount : -Math.Abs(item.Amount);
             SaveItems();
@@ -72,13 +67,13 @@ namespace MoneyTracker.Services
 
             if (existingItem != null)
             {
-                Balance -= existingItem.Amount; // deduct old amount from balance
+                Balance -= existingItem.Amount; // remove old amount from balance
                 existingItem.Title = newItem.Title;
                 existingItem.Amount = newItem.Amount;
                 existingItem.Date = newItem.Date;
                 existingItem.ItemType = newItem.ItemType;
 
-                Balance += newItem.ItemType == ItemType.Income ? newItem.Amount : -newItem.Amount; // update balance
+                Balance += newItem.ItemType == ItemType.Income ? newItem.Amount : -newItem.Amount; // update balance after edit
 
                 SaveItems();
             }
@@ -97,7 +92,6 @@ namespace MoneyTracker.Services
                 fileName = "saved_items.txt";
             }
 
-            // create file path with .txt
             string filePath = $"{fileName}.txt";
 
             try

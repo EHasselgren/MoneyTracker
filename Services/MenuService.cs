@@ -136,13 +136,13 @@ namespace MoneyTracker.Services
 
         private void EditItem()
         {
-            AnsiConsole.MarkupLine($"[bold yellow]\nEnter ID of item to edit or delete:[/] ");
-            int itemId = Convert.ToInt32(Console.ReadLine());
+            int itemId = _inputService.PromptForItemId("Enter ID of item to edit or delete:");
+
             Item? existingItem = _moneyTracker.Items.FirstOrDefault(i => i.ItemId == itemId);
 
             if (existingItem != null)
             {
-                string action = _inputService.PromptForEditOrDelete();
+                string action = _inputService.PromptForEditOrDelete(existingItem.Title);
                 if (action == "Edit")
                 {
                     EditExistingItem(existingItem);
@@ -162,21 +162,12 @@ namespace MoneyTracker.Services
         {
             AnsiConsole.MarkupLine($"[yellow]Current title:[/] [blue]{existingItem.Title}[/]");
 
-            string newTitle = Console.ReadLine() ?? string.Empty;
+            string newTitle = AnsiConsole.Ask<string>($"[bold yellow]Enter new title (leave blank to keep current):[/]", existingItem.Title);
 
-            if (string.IsNullOrWhiteSpace(newTitle))
-            {
-                newTitle = existingItem.Title;
-            }
+            newTitle = string.IsNullOrWhiteSpace(newTitle) ? existingItem.Title : newTitle.Trim();
 
             float newAmount = _inputService.PromptForAmount();
-            if (newAmount == 0)
-            {
-                AnsiConsole.MarkupLine("[red]Invalid amount entered. Please try again.[/]");
-                return;
-            }
 
-            // Determine the item type based on the amount
             ItemType newItemType = (newAmount > 0) ? ItemType.Income : ItemType.Expense;
 
             Item updatedItem = new Item(existingItem.ItemId, newTitle, Math.Abs((decimal)newAmount), DateTime.Now, newItemType);
@@ -185,6 +176,8 @@ namespace MoneyTracker.Services
 
             AnsiConsole.MarkupLine($"[bold yellow]\nUpdated item:[/] [blue]{updatedItem.Title}[/]");
         }
+
+
 
         private void DeleteExistingItem(Item existingItem)
         {

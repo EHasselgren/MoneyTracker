@@ -14,22 +14,32 @@ namespace MoneyTracker.Services
             return AnsiConsole.Ask<string>($"[yellow]{message}[/]");
         }
 
+        public int PromptForItemId(string promptMessage)
+        {
+            AnsiConsole.Markup($"[bold yellow]{promptMessage}[/] ");
+            int itemId;
+            while (!int.TryParse(Console.ReadLine(), out itemId))
+            {
+                AnsiConsole.MarkupLine("[red]Invalid ID entered. Please enter a valid number.[/]");
+            }
+            return itemId;
+        }
+
         public float PromptForAmount()
         {
-            string amountInput = AnsiConsole.Ask<string>("[bold yellow]Enter amount:[/] ");
-
+            string amountInput = AnsiConsole.Ask<string>("[bold yellow]Enter amount (must be a number):[/] ");
             if (string.IsNullOrWhiteSpace(amountInput) || !float.TryParse(amountInput, out float amount))
             {
-                AnsiConsole.WriteLine("Invalid input. Please enter a valid number for the amount.");
-                return 0;
+                AnsiConsole.MarkupLine("[red]Invalid input. Please enter a valid number for the amount.[/]");
+                return PromptForAmount();
             }
             return amount;
         }
 
-        public string PromptForEditOrDelete()
+        public string PromptForEditOrDelete(string itemTitle)
         {
             SelectionPrompt<string> editOrDeletePrompt = new SelectionPrompt<string>()
-                .Title($"[bold yellow]\nWould you like to edit or delete this item?[/]")
+                .Title($"[bold yellow]\nWould you like to edit or delete the item \"[blue italic bold]{itemTitle}[/]\"?[/]")
                 .AddChoices(new[] { "Edit", "Delete" });
 
             return AnsiConsole.Prompt(editOrDeletePrompt);
@@ -44,7 +54,6 @@ namespace MoneyTracker.Services
 
             return AnsiConsole.Prompt(sortPrompt);
         }
-
         public string PromptForSortDirection()
         {
             List<string> directionOptions = new List<string> { "Ascending", "Descending" };
@@ -56,6 +65,4 @@ namespace MoneyTracker.Services
             return AnsiConsole.Prompt(directionPrompt);
         }
     }
-
 }
-
