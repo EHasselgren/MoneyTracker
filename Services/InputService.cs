@@ -8,6 +8,7 @@ namespace MoneyTracker.Services
         {
             return AnsiConsole.Ask<string>($"[yellow]{message}[/]");
         }
+
         public int PromptForItemId(string promptMessage)
         {
             AnsiConsole.Markup($"[bold yellow]{promptMessage}[/] ");
@@ -27,6 +28,7 @@ namespace MoneyTracker.Services
             string newTitle = AnsiConsole.Ask<string>($"[bold yellow]Enter new title (leave blank to keep current):[/]", currentTitle);
             return string.IsNullOrWhiteSpace(newTitle) ? currentTitle : newTitle.Trim();
         }
+
         public float PromptForAmount()
         {
             float amount;
@@ -45,36 +47,30 @@ namespace MoneyTracker.Services
             return amount;
         }
 
+        private string PromptForSelection(string title, IEnumerable<string> choices)
+        {
+            SelectionPrompt<string> selectionPrompt = new SelectionPrompt<string>()
+                .PageSize(choices.Count() > 3 ? choices.Count() : 3)
+                .AddChoices(choices)
+                .Title(title);
 
+            return AnsiConsole.Prompt(selectionPrompt);
+        }
         public string PromptForEditOrDelete(string itemTitle)
         {
-            SelectionPrompt<string> editOrDeletePrompt = new SelectionPrompt<string>()
-                .Title($"[bold yellow]\nWould you like to edit or delete the item \"[blue italic bold]{itemTitle}[/]\"?[/]")
-                .AddChoices(new[] { "Edit", "Delete" });
-
-            return AnsiConsole.Prompt(editOrDeletePrompt);
+            return PromptForSelection($"[bold yellow]\nWould you like to edit or delete the item \"[blue italic bold]{itemTitle}[/]\"?[/]",
+                                      new[] { "Edit", "Delete" });
         }
 
         public string PromptForSortOption(List<string> sortOptions)
         {
-            SelectionPrompt<string> sortPrompt = new SelectionPrompt<string>()
-                .PageSize(sortOptions.Count > 3 ? sortOptions.Count : 3)
-                .AddChoices(sortOptions)
-                .Title("[bold yellow]\nSelect a sorting option:[/]");
-
-            return AnsiConsole.Prompt(sortPrompt);
+            return PromptForSelection("[bold yellow]\nSelect a sorting option:[/]", sortOptions);
         }
 
         public string PromptForSortDirection()
         {
-            List<string> directionOptions = new List<string> { "Ascending", "Descending" };
-
-            SelectionPrompt<string> directionPrompt = new SelectionPrompt<string>()
-                .PageSize(directionOptions.Count > 3 ? directionOptions.Count : 3)
-                .AddChoices(directionOptions)
-                .Title("[bold yellow]\nSelect sorting direction:[/]");
-
-            return AnsiConsole.Prompt(directionPrompt);
+            return PromptForSelection("[bold yellow]\nSelect sorting direction:[/]", new List<string> { "Ascending", "Descending" });
         }
+
     }
 }
