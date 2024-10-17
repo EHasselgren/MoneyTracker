@@ -8,6 +8,7 @@ namespace MoneyTracker.Services
     public class DisplayService
     {
         readonly ItemService _itemService;
+        readonly CultureInfo _swedishCulture = new CultureInfo("se-SW");
 
         public DisplayService(ItemService itemService) => _itemService = itemService;
 
@@ -16,7 +17,7 @@ namespace MoneyTracker.Services
             Table balanceTable = new Table().AddColumn("[yellow bold]Total Balance[/]");
             balanceTable.AddRow($"[white]{_itemService.Balance:C2}[/]");
 
-            // filter by income/expense:
+            // Filter by income/expense:
             if (filterType == ItemType.Income)
             {
                 decimal totalIncome = _itemService.GetFilteredItems(ItemType.Income).Sum(item => item.Amount);
@@ -44,8 +45,8 @@ namespace MoneyTracker.Services
 
             Table dateRangeTable = new Table().AddColumn("[yellow bold]Date Range[/]");
 
-            dateRangeTable.AddRow($"[white]{new CultureInfo("se-SW").TextInfo.ToTitleCase(oldestDate.ToString("MMMM dd, yyyy").ToLower())} " +
-                $"- {new CultureInfo("se-SW").TextInfo.ToTitleCase(newestDate.ToString("MMMM dd, yyyy").ToLower())}[/]");
+            dateRangeTable.AddRow($"[white]{_swedishCulture.TextInfo.ToTitleCase(oldestDate.ToString("MMMM dd, yyyy").ToLower())} " +
+                $"- {_swedishCulture.TextInfo.ToTitleCase(newestDate.ToString("MMMM dd, yyyy").ToLower())}[/]");
 
             return dateRangeTable;
         }
@@ -65,12 +66,14 @@ namespace MoneyTracker.Services
 
             foreach (Item item in itemsToDisplay)
             {
+                string formattedDate = _swedishCulture.TextInfo.ToTitleCase(item.Date.ToString("MMMM dd, yyyy").ToLower());
+
                 itemsTable.AddRow(
                     item.ItemId.ToString(),
                     item.Title,
                     $"[{(item.ItemType == ItemType.Expense ? "red" : "green")}]"
                     + $"{(item.ItemType == ItemType.Expense ? "-" : "")}{item.Amount:C2}[/]",
-                    new CultureInfo("se-SW").TextInfo.ToTitleCase(item.Date.ToString("MMMM dd, yyyy").ToLower()),
+                    formattedDate,
                     $"[{(item.ItemType == ItemType.Expense ? "red" : "green")}] {item.ItemType} [/]"
                 );
             }
@@ -89,7 +92,6 @@ namespace MoneyTracker.Services
                 new Panel(dateRangeTable) { Border = BoxBorder.Square }
             );
 
-            // change menu header based on filtering
             string headerTitle = filterType switch
             {
                 ItemType.Income => "[bold green]Income Items[/]",

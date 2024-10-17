@@ -187,7 +187,7 @@ public class MenuService
 
     void SortItems()
     {
-        List<string> sortOptions = new List<string> { "Sort by ID", "Sort by Title", "Sort by Amount", "Sort by Month" };
+        List<string> sortOptions = new List<string> { "Sort by ID", "Sort by Title", "Sort by Amount", "Sort by Date" };
         string sortBy = _inputService.PromptForSortOption(sortOptions);
         string direction = _inputService.PromptForSortDirection();
 
@@ -204,7 +204,7 @@ public class MenuService
             "Sort by ID" => (Func<Item, object>)(i => i.ItemId),
             "Sort by Title" => (Func<Item, object>)(i => i.Title),
             "Sort by Amount" => (Func<Item, object>)(i => i.ItemType == ItemType.Income ? i.Amount : -i.Amount),
-            "Sort by Month" => (Func<Item, object>)(i => i.Date.Month),
+            "Sort by Date" => (Func<Item, object>)(i => i.Date),
             _ => throw new ArgumentOutOfRangeException(nameof(sortBy), "Invalid sort option")
         };
 
