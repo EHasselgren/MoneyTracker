@@ -16,18 +16,6 @@ public class MenuService
         _inputService = inputService;
     }
 
-    public void Start()
-    {
-        bool running = true;
-
-        while (running)
-        {
-            AnsiConsole.Clear();
-            _displayService.CreateItemsTable();
-            string selection = GetMenuSelection();
-            running = HandleMenuSelection(selection);
-        }
-    }
 
     string GetMenuSelection()
     {
@@ -73,6 +61,19 @@ public class MenuService
         selectedAction();
         WaitForUser();
         return true;
+    }
+
+    public void Start()
+    {
+        bool running = true;
+
+        while (running)
+        {
+            AnsiConsole.Clear();
+            _displayService.CreateItemsTable();
+            string selection = GetMenuSelection();
+            running = HandleMenuSelection(selection);
+        }
     }
 
     void WaitForUser()

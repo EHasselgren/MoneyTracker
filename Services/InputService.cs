@@ -11,7 +11,7 @@ namespace MoneyTracker.Services
 
         public int PromptForItemId(string promptMessage)
         {
-            AnsiConsole.Markup($"[bold yellow]{promptMessage}[/] ");
+            AnsiConsole.Markup($"[bold yellow]{promptMessage}[/]");
             int itemId;
 
             while (!int.TryParse(Console.ReadLine(), out itemId))

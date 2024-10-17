@@ -87,7 +87,7 @@ namespace MoneyTracker.Services
             Table balanceTable = CreateBalanceTable(filterType);
             Table dateRangeTable = CreateDateRangeTable(itemsToDisplay);
 
-            Columns summaryTable = new Columns(
+            Columns BalanceAndDateRangeTable = new Columns(
                 new Panel(balanceTable) { Border = BoxBorder.Square },
                 new Panel(dateRangeTable) { Border = BoxBorder.Square }
             );
@@ -101,7 +101,7 @@ namespace MoneyTracker.Services
 
             Panel mainPanel = new Panel(new Rows(
                 new Panel(itemsTable) { Border = BoxBorder.Square, Header = new PanelHeader(headerTitle) },
-                summaryTable
+                BalanceAndDateRangeTable
             ))
             {
                 Border = BoxBorder.Rounded,
