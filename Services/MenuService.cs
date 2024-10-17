@@ -23,7 +23,7 @@ public class MenuService
         while (running)
         {
             AnsiConsole.Clear();
-            _displayService.DisplayItemsAndBalance();
+            _displayService.CreateItemsTable();
             string selection = GetMenuSelection();
             running = HandleMenuSelection(selection);
         }
@@ -84,7 +84,7 @@ public class MenuService
     void ShowFilteredItems(ItemType itemType)
     {
         AnsiConsole.Clear();
-        _displayService.DisplayItemsAndBalance(itemType);
+        _displayService.CreateItemsTable(itemType);
     }
 
     bool IsValidTitle(string title)

@@ -51,7 +51,7 @@ namespace MoneyTracker.Services
             return dateRangeTable;
         }
 
-        public void DisplayItemsAndBalance(ItemType? filterType = null)
+        public void CreateItemsTable(ItemType? filterType = null)
         {
             Table itemsTable = new Table()
                 .AddColumn("[white]ID[/]")
